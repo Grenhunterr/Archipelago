@@ -1,8 +1,8 @@
 import settings
 import typing
 from .Options import SSOptions  # the options we defined earlier
-from .Items import SeveredSoulItem  # data used below to add items to the World
-from .Locations import SeveredSoulLocation  # same as above
+from .Items import SeveredSoulItem, item_table  # data used below to add items to the World
+from .Locations import SeveredSoulLocation, location_table  # same as above
 from worlds.AutoWorld import World
 from BaseClasses import Region, Location, Entrance, Item, ItemClassification
 
@@ -38,9 +38,9 @@ class SeveredSoulWorld(World):
     # items exist. They could be generated from json or something else. They can
     # include events, but don't have to since events will be placed manually.
     item_name_to_id = {name: id for
-                       id, name in enumerate(SeveredSoulItem, base_id)}
+                       name, id in item_table.items()}
     location_name_to_id = {name: id for
-                           id, name in enumerate(SeveredSoulLocation, base_id)}
+                           name, id in location_table.items()}
 
     # Items can be grouped using their names to allow easy checking if any item
     # from that group has been collected. Group names can also be used for !hint
