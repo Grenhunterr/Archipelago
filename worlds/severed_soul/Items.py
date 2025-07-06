@@ -1,9 +1,9 @@
-from BaseClasses import Item, ItemClassification
+from BaseClasses import Item
 
 
 
 class SeveredSoulItem(Item):
-    game: str = "Severed Soul"
+    game: str = "severed_soul"
     type: str
     
 item_table = {

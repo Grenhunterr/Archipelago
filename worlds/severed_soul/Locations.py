@@ -2,7 +2,7 @@ from BaseClasses import Location
 
 
 class SeveredSoulLocation(Location):
-    game: str = "Severed Soul"
+    game: str = "severed_soul"
 
 location_table = {
     "5 Coins Collected": 2010000,
