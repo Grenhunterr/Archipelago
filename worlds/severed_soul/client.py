@@ -9,19 +9,21 @@ if TYPE_CHECKING:
     from worlds._bizhawk.context import BizHawkClientContext
 
 
-class SeveredSoulClient(BizHawkClient):
+class MyGameClient(BizHawkClient):
     game = "severed_soul"
-    system = "GB"  # Original Game Boy
-    patch_suffix = ".apextension"  # Keeping this as-is
+    system = "GB"
+    patch_suffix = ".grenhunterrpatchfile"
 
     async def validate_rom(self, ctx: "BizHawkClientContext") -> bool:
         try:
-            rom_name = ((await bizhawk.read(ctx.bizhawk_ctx, [(0x100, 11, "ROM")]))[0]).decode("latin-1")
-            if rom_name.strip() != "SEVEREDSOUL":
-                return False
+            # Check ROM name/patch version
+            rom_name = ((await bizhawk.read(ctx.bizhawk_ctx, [(0x100, 6, "ROM")]))[0]).decode("ascii")
+            if rom_name != "SEVEREDSOUL":
+                return False  # Not a MYGAME ROM
         except bizhawk.RequestFailedError:
-            return False
+            return False  # Not able to get a response, say no for now
 
+        # This is a MYGAME ROM
         ctx.game = self.game
         ctx.items_handling = 0b001
         ctx.want_slot_data = True
@@ -30,34 +32,26 @@ class SeveredSoulClient(BizHawkClient):
 
     async def game_watcher(self, ctx: "BizHawkClientContext") -> None:
         try:
-            memory = await bizhawk.read(
+            # Read save data
+            save_data = await bizhawk.read(
                 ctx.bizhawk_ctx,
-                [
-                    (0x0B98, 1, "System Bus"),  # coins
-                    (0x0B94, 1, "System Bus"),  # lives
-                    (0x0B9C, 1, "System Bus"),  # secret item
-                    (0x0BA4, 1, "System Bus"),  # ending trigger
-                ]
-            )
+                [(0x3000100, 20, "System Bus")]
+            )[0]
 
-            coins = memory[0][0]
-            lives = memory[1][0]
-            secret_item = memory[2][0]
-            ending_flag = memory[3][0]
-
-            # Example location check: collected secret item
-            if secret_item != 0:
+            # Check locations
+            if save_data[2] & 0x04:
                 await ctx.send_msgs([{
                     "cmd": "LocationChecks",
-                    "locations": [100]  # Update this with your actual location ID
+                    "locations": [23]
                 }])
 
-            # Game finished check
-            if not ctx.finished_game and ending_flag != 0:
+            # Send game clear
+            if not ctx.finished_game and (save_data[5] & 0x01):
                 await ctx.send_msgs([{
                     "cmd": "StatusUpdate",
                     "status": ClientStatus.CLIENT_GOAL
                 }])
 
         except bizhawk.RequestFailedError:
+            # The connector didn't respond. Exit handler and return to main loop to reconnect
             pass
