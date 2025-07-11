@@ -7,12 +7,12 @@ class SeveredSoulLocation(Location):
 location_table = {
     # World 1
     "Coin #1 (W1L1)": 2010000,
-    "Coin #2 (W1L2)": 2010001,
-    "Coin #3 (W1L2)": 2010002,
-    "Coin #4 (W1L2)": 2010003,
-    "Coin #5 (W1L3)": 2010004,
-    "Coin #6 (W1L3)": 2010005,
-    "Coin #7 (W1L3)": 2010006,
+    "Coin #1 (W1L2)": 2010001,
+    "Coin #2 (W1L2)": 2010002,
+    "Coin #3 (W1L2)": 2010003,
+    "Coin #1 (W1L3)": 2010004,
+    "Coin #2 (W1L3)": 2010005,
+    "Coin #3 (W1L3)": 2010006,
 
     # World 2
     "Coin #8 (W2L1)": 2010007,

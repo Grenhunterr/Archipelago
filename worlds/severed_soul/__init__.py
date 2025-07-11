@@ -22,8 +22,7 @@ class SeveredSoulWorld(World):
     topology_present = False  # show path to required location checks in spoiler
 
 
-    def create_regions(self):
-        create_regions(self.multiworld, self.player)
+
 
 
     # ID of first item and location, could be hard-coded but code may be easier
@@ -42,5 +41,31 @@ class SeveredSoulWorld(World):
     # Items can be grouped using their names to allow easy checking if any item
     # from that group has been collected. Group names can also be used for !hint
     item_name_groups = {
-        "coin drops": {"Coin Drop #1", "Coin Drop #2"},
+        "keys": {"W2 Key", "W3 Key"},
     }
+
+
+
+
+    def create_regions(self):
+        create_regions(self.multiworld, self.player)
+
+
+    def create_item(self, name: str) -> "Item":
+        return Item(name, ItemClassification.progression, self.item_name_to_id[name], self.player)
+
+
+
+    def create_items(self):
+        # create item pool
+        pool = []
+
+        # add regular items
+        for k, v in item_table.items():
+            item = Item(k, ItemClassification.progression, self.item_name_to_id[k], self.player)
+
+            self.multiworld.itempool.append(item)
+
+
+    def connect_entrances(self) -> None:
+        
