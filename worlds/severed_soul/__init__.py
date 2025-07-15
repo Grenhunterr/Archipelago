@@ -3,14 +3,29 @@ import typing
 from .Options import SSOptions  # the options we defined earlier
 from .Items import SeveredSoulItem, item_table  # data used below to add items to the World
 from .Locations import SeveredSoulLocation, location_table  # same as above
-from worlds.AutoWorld import World
+from worlds.AutoWorld import World, WebWorld
 from BaseClasses import Region, Location, Entrance, Item, ItemClassification
-from .Regions import create_regions
+from .Regions import create_regions, connect_entrances
+
 
 #class MyGameSettings(settings.Group):
 #   class RomFile(settings.GBRomPath):
 #       """Insert help text for host.yaml here."""
 #   rom_file: RomFile = RomFile("SeveredSoul-V1.1.gb")
+
+
+
+class SeveredSoulWeb(WebWorld):
+    theme = "stone"
+    options_presets = {
+        "Severed Soul": {
+            "stupid_people": True,
+            "secret_ending": False,
+            "oob_coins": False,
+            "hidden_secret_stuff": False,
+            "progress_per_lvl": False,
+        }
+    }
 
 
 class SeveredSoulWorld(World):
@@ -41,31 +56,42 @@ class SeveredSoulWorld(World):
     # Items can be grouped using their names to allow easy checking if any item
     # from that group has been collected. Group names can also be used for !hint
     item_name_groups = {
-        "keys": {"W2 Key", "W3 Key"},
+        "keys": {"W2 Key", "W3 Key", "End Credits Key", "Claw Machine Key"},
     }
 
+
+    def __init__(self, multiworld, player):
+        super().__init__(multiworld, player)
 
 
 
     def create_regions(self):
-        create_regions(self.multiworld, self.player)
+        create_regions(self)
 
 
     def create_item(self, name: str) -> "Item":
         return Item(name, ItemClassification.progression, self.item_name_to_id[name], self.player)
 
-
-
     def create_items(self):
-        # create item pool
-        pool = []
+
+        totalItems = len(self.multiworld.get_unfilled_locations(self.player))
+
 
         # add regular items
         for k, v in item_table.items():
             item = Item(k, ItemClassification.progression, self.item_name_to_id[k], self.player)
 
             self.multiworld.itempool.append(item)
+            totalItems -= 1
+        for _ in range(totalItems):
+            item = Item("Coin", ItemClassification.filler, 2010004, self.player)
+            self.multiworld.itempool.append(item)
 
 
     def connect_entrances(self) -> None:
-        
+        connect_entrances(self)
+        from Utils import visualize_regions
+        visualize_regions(self.multiworld.get_region("Menu", self.player), f"{self.player_name}_world.puml",
+                          show_entrance_names=True,
+                          regions_to_highlight=self.multiworld.get_all_state(self.player).reachable_regions[
+                              self.player])
