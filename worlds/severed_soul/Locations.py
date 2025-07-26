@@ -66,4 +66,7 @@ location_table = {
     "The Eye Sees All": 2010049,
     "Slime-y Secret": 2010050,
     "Duck": 2010051,
+
+
+    "Beaten Game": 2010052,
 }

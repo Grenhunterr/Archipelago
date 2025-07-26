@@ -4,7 +4,7 @@ from .Options import SSOptions  # the options we defined earlier
 from .Items import SeveredSoulItem, item_table  # data used below to add items to the World
 from .Locations import SeveredSoulLocation, location_table  # same as above
 from worlds.AutoWorld import World, WebWorld
-from BaseClasses import Region, Location, Entrance, Item, ItemClassification
+from BaseClasses import Region, Location, Entrance, Item, ItemClassification, MultiWorld
 from .Regions import create_regions, connect_entrances
 
 
@@ -67,6 +67,8 @@ class SeveredSoulWorld(World):
 
     def create_regions(self):
         create_regions(self)
+        self.multiworld.completion_condition[self.player] = lambda state: state.can_reach("End", "Region", self.player) and state.has("End Credits Key", self.player)
+
 
 
     def create_item(self, name: str) -> "Item":
@@ -90,8 +92,9 @@ class SeveredSoulWorld(World):
 
     def connect_entrances(self) -> None:
         connect_entrances(self)
-        from Utils import visualize_regions
-        visualize_regions(self.multiworld.get_region("Menu", self.player), f"{self.player_name}_world.puml",
-                          show_entrance_names=True,
-                          regions_to_highlight=self.multiworld.get_all_state(self.player).reachable_regions[
-                              self.player])
+#        from Utils import visualize_regions
+#        visualize_regions(self.multiworld.get_region("Menu", self.player), f"{self.player_name}_world.puml",
+#                          show_entrance_names=True,
+#                          regions_to_highlight=self.multiworld.get_all_state(self.player).reachable_regions[
+#                              self.player])
+

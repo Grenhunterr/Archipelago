@@ -96,6 +96,8 @@ def create_regions(world):
     multiworld.regions.append(regw3l5)
 
     regend = Region("End", player, multiworld, "End")
+    locend_names = ["Beaten Game"]
+    regend.locations +=  [SeveredSoulLocation(player, loc_name, location_table[loc_name], regend) for loc_name in locend_names]
     multiworld.regions.append(regend)
 
 def connect(world, name: str, source: str, target: str, rule=None, reach: Optional[bool] = False,
@@ -118,7 +120,7 @@ def connect(world, name: str, source: str, target: str, rule=None, reach: Option
 
 def connect_entrances(world) -> None:
     connect(world, "W1 Entrance (Menu -> W1L1)", "Menu", "W1L1")
-    connect(world, "Claw Machine Entrance (Menu -> Claw Machine)", "Menu", "Claw Machine")
+    connect(world, "Claw Machine Entrance (Menu -> Claw Machine)", "Menu", "Claw Machine", lambda state: state.has("Claw Machine Key", world.player))
 
     # world connecting
     connect(world, "W2 Entrance (W1L3 -> W2L1)", "W1L3", "W2L1", lambda state: state.has("W2 Key", world.player))
@@ -137,3 +139,7 @@ def connect_entrances(world) -> None:
     connect(world, "W3L2 -> W3L3", "W3L2", "W3L3")
     connect(world, "W3L2 -> W3L4", "W3L2", "W3L4")
     connect(world, "W3L2 -> W3L5", "W3L2", "W3L5")
+
+
+
+    connect(world, "W3 Entrance (W2L4 -> W3L1)", "W2L4", "W3L1", lambda state: state.has("W3 Key", world.player))
