@@ -8,10 +8,18 @@ from BaseClasses import Region, Location, Entrance, Item, ItemClassification, Mu
 from .Regions import create_regions, connect_entrances
 
 
-#class MyGameSettings(settings.Group):
-#   class RomFile(settings.GBRomPath):
-#       """Insert help text for host.yaml here."""
-#   rom_file: RomFile = RomFile("SeveredSoul-V1.1.gb")
+
+
+class MyGameSettings(settings.Group):
+    class RomFile(settings.UserFilePath):
+        """Insert help text for host.yaml here."""
+        #rom_file: RomFile = RomFile("SSAP.gb")
+        description =  "Severed Souls AP ROM"
+        copy_to = "Severed Soul AP ROM which is totally legit and fully functioning.gb"
+        md5s = ["E9773D4BE958C4C00C8E7A740554C563"]
+
+    rom_file: RomFile = RomFile(RomFile.copy_to)
+    rom_start: bool = True
 
 
 
@@ -33,7 +41,7 @@ class SeveredSoulWorld(World):
     game = "severed_soul"  # name of the game/world
     options_dataclass = SSOptions  # options the player can set
     options: SSOptions  # typing hints for option results
-#    settings: typing.ClassVar[MyGameSettings]  # will be automatically assigned from type hint
+    settings: typing.ClassVar[MyGameSettings]  # will be automatically assigned from type hint
     topology_present = False  # show path to required location checks in spoiler
 
 
