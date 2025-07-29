@@ -56,6 +56,7 @@ class AutoBizHawkClientRegister(abc.ABCMeta):
 
     @staticmethod
     async def get_handler(ctx: "BizHawkClientContext", system: str) -> BizHawkClient | None:
+        print(AutoBizHawkClientRegister.game_handlers)
         for systems, handlers in AutoBizHawkClientRegister.game_handlers.items():
             if system in systems:
                 for handler in handlers.values():

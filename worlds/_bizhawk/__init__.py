@@ -173,7 +173,7 @@ async def get_memory_size(ctx: BizHawkContext, domain: str) -> int:
 async def get_system(ctx: BizHawkContext) -> str:
     """Gets the system name for the currently loaded ROM"""
     res = (await send_requests(ctx, [{"type": "SYSTEM"}]))[0]
-
+    print(res)
     if res["type"] != "SYSTEM_RESPONSE":
         raise SyncError(f"Expected response of type SYSTEM_RESPONSE but got {res['type']}")
 

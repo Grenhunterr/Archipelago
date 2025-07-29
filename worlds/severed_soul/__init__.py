@@ -6,6 +6,7 @@ from .Locations import SeveredSoulLocation, location_table  # same as above
 from worlds.AutoWorld import World, WebWorld
 from BaseClasses import Region, Location, Entrance, Item, ItemClassification, MultiWorld
 from .Regions import create_regions, connect_entrances
+from .client import SSClient
 
 
 
