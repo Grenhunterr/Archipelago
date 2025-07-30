@@ -66,6 +66,7 @@ class SeveredSoulWorld(World):
     # from that group has been collected. Group names can also be used for !hint
     item_name_groups = {
         "keys": {"W2 Key", "W3 Key", "End Credits Key", "Claw Machine Key"},
+        "coins": {"Coin"}
     }
 
 

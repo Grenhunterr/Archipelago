@@ -60,13 +60,13 @@ location_table = {
     "Anchor (Claw Machine Draw)": 2010045,
     "Ghost Keychain (Claw Machine Draw)": 2010046,
     "Star (Claw Machine Draw)": 2010047,
-    "Claw Machine Interact": 2010048,
 
 
-    "The Eye Sees All": 2010049,
-    "Slime-y Secret": 2010050,
-    "Duck": 2010051,
+
+    "The Eye Sees All": 2010048,
+    "Slime-y Secret": 2010049,
+    "Duck": 2010050,
 
 
-    "Beaten Game": 2010052,
+    "Beaten Game": 2010051,
 }

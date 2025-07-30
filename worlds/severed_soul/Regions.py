@@ -10,7 +10,7 @@ def create_regions(world):
     multiworld.regions.append(regmen)
 
     regclaw = Region("Claw Machine", player, multiworld, "Claw Machine")
-    locclaw_names = ["Claw Machine Interact"]
+    locclaw_names = []
     if world.options.randomed_claw:
         locclaw_names.append("$5 USD (Claw Machine Draw)")
         locclaw_names.append("Shattered Soul Keychain (Claw Machine Draw)")
@@ -78,8 +78,8 @@ def create_regions(world):
     locw3l3_names = ["Coin #1 (W3L3)", "Coin #2 (W3L3)", "Coin #3 (W3L3)", "Coin #4 (W3L3)", "Coin #5 (W3L3)"]
     if world.options.oob_coins:
         locw3l3_names.append("Coin #6 (W3L3)")
-        if world.options.hidden_secret_stuff:
-            locw3l3_names.append("Duck")
+    if world.options.hidden_secret_stuff:
+        locw3l3_names.append("Duck")
     regw3l3.locations += [SeveredSoulLocation(player, loc_name, location_table[loc_name], regw3l3) for loc_name in locw3l3_names]
     multiworld.regions.append(regw3l3)
 

@@ -23,7 +23,7 @@ class SSClient(BizHawkClient):
             if rom_name != "SEVEREDSOUL":  # Replace with actual expected header or identifier
                 return False
             ctx.game = self.game
-            ctx.items_handling = 0b001  # Server sends items
+            ctx.items_handling = 0b011  # Server sends items
             ctx.want_slot_data = True
             return True
         except bizhawk.RequestFailedError:
@@ -325,19 +325,19 @@ class SSClient(BizHawkClient):
             if ram_data[42][0] == 1:  # duck
                 await ctx.send_msgs([{
                     "cmd": "LocationChecks",
-                    "locations": [2010051]  # Use your actual Archipelago location ID
+                    "locations": [2010050]  # Use your actual Archipelago location ID
                 }])
 
             if ram_data[41][0] == 1:  # eye
                 await ctx.send_msgs([{
                     "cmd": "LocationChecks",
-                    "locations": [2010049]  # Use your actual Archipelago location ID
+                    "locations": [2010048]  # Use your actual Archipelago location ID
                 }])
 
             if ram_data[40][0] == 1:  # slime
                 await ctx.send_msgs([{
                     "cmd": "LocationChecks",
-                    "locations": [2010050]  # Use your actual Archipelago location ID
+                    "locations": [2010049]  # Use your actual Archipelago location ID
                 }])
 
 
