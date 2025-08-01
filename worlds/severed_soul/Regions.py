@@ -120,12 +120,12 @@ def connect(world, name: str, source: str, target: str, rule=None, reach: Option
 
 def connect_entrances(world) -> None:
     connect(world, "W1 Entrance (Menu -> W1L1)", "Menu", "W1L1")
-    connect(world, "Claw Machine Entrance (Menu -> Claw Machine)", "Menu", "Claw Machine", lambda state: state.has("Claw Machine Key", world.player))
+    connect(world, "Claw Machine Entrance (Menu -> Claw Machine)", "Menu", "Claw Machine", lambda state: state.has("Claw Machine Key", world.player) and state.has("Coin", world.player, 10))
 
     # world connecting
     connect(world, "W2 Entrance (W1L3 -> W2L1)", "W1L3", "W2L1", lambda state: state.has("W2 Key", world.player))
     connect(world, "W3 Entrance (W2L3 -> W3L1)", "W2L3", "W3L1", lambda state: state.has("W3 Key", world.player))
-    connect(world, "End Credits Entrance (W3 Exit)", "W3L2", "End", lambda state: state.has("End Credits Key", world.player))
+    connect(world, "End Credits Entrance (W3 Exit)", "W3L2", "End", lambda state: state.has("End Credits Key", world.player) and state.has("Coin", world.player))
 
     # level connecting
     connect(world, "W1L1 -> W1L2", "W1L1", "W1L2")

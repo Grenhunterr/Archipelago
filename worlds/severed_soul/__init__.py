@@ -1,5 +1,7 @@
 import settings
 import typing
+
+from Options import OptionError
 from .Options import SSOptions  # the options we defined earlier
 from .Items import SeveredSoulItem, item_table  # data used below to add items to the World
 from .Locations import SeveredSoulLocation, location_table  # same as above
@@ -89,15 +91,23 @@ class SeveredSoulWorld(World):
         totalItems = len(self.multiworld.get_unfilled_locations(self.player))
 
 
+
         # add regular items
         for k, v in item_table.items():
             item = Item(k, ItemClassification.progression, self.item_name_to_id[k], self.player)
 
             self.multiworld.itempool.append(item)
             totalItems -= 1
-        for _ in range(totalItems):
+
+        progCoins = totalItems // 2 if self.options.randomed_claw else 0
+        for _ in range(progCoins):
+            item = Item("Coin", ItemClassification.progression, 2010004, self.player)
+            self.multiworld.itempool.append(item)
+
+        for _ in range(totalItems-progCoins):
             item = Item("Coin", ItemClassification.filler, 2010004, self.player)
             self.multiworld.itempool.append(item)
+
 
 
     def connect_entrances(self) -> None:
@@ -108,3 +118,11 @@ class SeveredSoulWorld(World):
 #                          regions_to_highlight=self.multiworld.get_all_state(self.player).reachable_regions[
 #                              self.player])
 
+    def fill_slot_data(self) -> dict[str, any]:
+        # In order for our game client to handle the generated seed correctly we need to know what the user selected
+        # for their difficulty and final boss HP.
+        # A dictionary returned from this method gets set as the slot_data and will be sent to the client after connecting.
+        # The options dataclass has a method to return a `Dict[str, Any]` of each option name provided and the relevant
+        # option's value.
+        names = ["progress_per_lvl", "stupid_people"]
+        return self.options.as_dict(*names)

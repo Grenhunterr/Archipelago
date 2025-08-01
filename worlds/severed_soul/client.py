@@ -4,6 +4,7 @@ from NetUtils import ClientStatus
 
 import worlds._bizhawk as bizhawk
 from worlds._bizhawk.client import BizHawkClient
+from worlds.AutoWorld import World
 
 if TYPE_CHECKING:
     from worlds._bizhawk.context import BizHawkClientContext
@@ -33,7 +34,12 @@ class SSClient(BizHawkClient):
 
 
     async def game_watcher(self, ctx: "BizHawkClientContext") -> None:
+
+        if ctx.server is None or ctx.server.socket.closed or ctx.slot_data is None:
+            return
+
         try:
+
             # Read necessary WRAM bytes from memory
             ram_data = (await bizhawk.read(ctx.bizhawk_ctx, [
                 (0x0BA4, 1, "WRAM"),  # Release
@@ -423,6 +429,7 @@ class SSClient(BizHawkClient):
                     await bizhawk.write(ctx.bizhawk_ctx, [(0x0CFF, [received_index + i + 1], "WRAM")])
 
 
+
             # EXAMPLE: Send goal completion when bit 0 of byte 0x02000006 is set
             if not ctx.finished_game and (ram_data[0][0] == 1):
                 await ctx.send_msgs([{
@@ -431,6 +438,16 @@ class SSClient(BizHawkClient):
                 }])
                 ctx.finished_game = True
 
+
+
+
+
         except bizhawk.RequestFailedError:
             # BizHawk might have lost connection—just skip this frame
             return
+
+        if ctx.slot_info is not None:
+            print(ctx.slot_data)
+            print(ctx.slot_info)
+            if ctx.slot_data.get("progress_per_lvl") == 1:
+                await bizhawk.write(ctx.bizhawk_ctx, [(0x0B96, [15], "WRAM")])
