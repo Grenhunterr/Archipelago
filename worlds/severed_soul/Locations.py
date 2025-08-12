@@ -69,4 +69,22 @@ location_table = {
 
 
     "Beaten Game": 2010051,
+
+    "Secret Check #1": 2010052,
+    "Secret Check #2": 2010053,
+    "Secret Check #3": 2010054,
+    "Secret Check #4": 2010055,
+
+    "Fell Down A Pit": 2010056,
+    "Fell Down The Pit Again": 2010057,
+    "You KNOW That There's A Pit. Why would you go down???": 2010058,
+    "Seriously? Again?": 2010059,
+    "...": 2010060,
+    "You need a therapist.": 2010061,
+    "Last Pitfallin' Check": 2010062,
+
+    "Tetris Secret": 2010063,
+    "K. K. Slider Secret": 2010064,
+    "The Wise Mystical Sage (Ha! You thought this was gonna say the Wise Mystical Tree, didn't you?) ((Secret))": 2010065,
+
 }

@@ -42,12 +42,9 @@ class SSClient(BizHawkClient):
 
             # Read necessary WRAM bytes from memory
             ram_data = (await bizhawk.read(ctx.bizhawk_ctx, [
-                (0x0BA4, 1, "WRAM"),  # Release
+                (0x0BAA, 1, "WRAM"),  # Release
                 (0x0BAE, 1, "WRAM"),  # Claw Machine Interact
-                (0x0BB2, 1, "WRAM"),
-                (0x0BB4, 1, "WRAM"),
-                (0x0BB6, 1, "WRAM"),
-                (0x0BB8, 1, "WRAM"),
+                (0x0BB8, 1, "WRAM"), #W1L1
                 (0x0BBA, 1, "WRAM"),
                 (0x0BBC, 1, "WRAM"),
                 (0x0BBE, 1, "WRAM"),
@@ -61,33 +58,42 @@ class SSClient(BizHawkClient):
                 (0x0BCE, 1, "WRAM"),
                 (0x0BD0, 1, "WRAM"),
                 (0x0BD2, 1, "WRAM"),
-                (0x0BD4, 1, "WRAM"), # Coin 1 W3L1
-                (0x0BD6, 1, "WRAM"), # Coin 2 W3L1
-                (0x0BD8, 1, "WRAM"), # Coin 3 W3L1
-                (0x0BDA, 1, "WRAM"),
-                (0x0BDC, 1, "WRAM"),
-                (0x0BDE, 1, "WRAM"),
+                (0x0BD4, 1, "WRAM"),
+                (0x0BD6, 1, "WRAM"),
+                (0x0BD8, 1, "WRAM"),
+                (0x0BDA, 1, "WRAM"), # Coin 1 W3L1
+                (0x0BDC, 1, "WRAM"), # Coin 2 W3L1
+                (0x0BDE, 1, "WRAM"), # Coin 3 W3L1
                 (0x0BE0, 1, "WRAM"),
                 (0x0BE2, 1, "WRAM"),
                 (0x0BE4, 1, "WRAM"),
                 (0x0BE6, 1, "WRAM"),
-                (0x0BE8, 1, "WRAM"),
-                (0x0BEA, 1, "WRAM"),
                 (0x0BEC, 1, "WRAM"),
+                (0x0BEA, 1, "WRAM"),
+                (0x0BE8, 1, "WRAM"),
                 (0x0BEE, 1, "WRAM"),
+                (0x0BFA, 1, "WRAM"),
+                (0x0BFC, 1, "WRAM"),
+                (0x0BFE, 1, "WRAM"),
+                (0x0C00, 1, "WRAM"),
+                (0x0C02, 1, "WRAM"),
                 (0x0BF0, 1, "WRAM"),
                 (0x0BF2, 1, "WRAM"),
                 (0x0BF4, 1, "WRAM"),
                 (0x0BF6, 1, "WRAM"),
                 (0x0BF8, 1, "WRAM"),
-                (0x0BFA, 1, "WRAM"),
-                (0x0BFC, 1, "WRAM"),
-                (0x0BFE, 1, "WRAM"),  # Slime-y Secret
-                (0x0C00, 1, "WRAM"),  # The Eye Sees All
-                (0x0C02, 1, "WRAM"),  # Duck
-                (0x0C2C, 1, "WRAM"),  # Claw Machine Draw (multiple items, all share this)
+                (0x0C04, 1, "WRAM"),  # Slime-y Secret
+                (0x0C06, 1, "WRAM"),  # The Eye Sees All
+                (0x0C08, 1, "WRAM"),  # Duck
+                (0x0C3A, 1, "WRAM"),  # Claw Machine Draw (multiple items, all share this)
                 (0x0CFF, 1, "WRAM"),
-                (0x0B98, 1, "WRAM"), #coins maybe
+                (0x0B98, 1, "WRAM"), # coins maybe
+                (0x0B9E, 1, "WRAM"), # Secret Checks
+                (0x0B94, 1, "WRAM"), # health so it can go bye bye
+                (0x0C12, 1, "WRAM"), # KK (48)
+                (0x0C10, 1, "WRAM"), # Tetris
+                (0x0C0A, 1, "WRAM"), # sage
+                (0x0C14, 1, "WRAM"), #pits
             ]))
             print(ram_data)
             print(len(ram_data))
@@ -326,7 +332,7 @@ class SSClient(BizHawkClient):
 
 
 
-        # secret shit or something idk
+        # secret crap or something idk
 
             if ram_data[42][0] == 1:  # duck
                 await ctx.send_msgs([{
@@ -344,6 +350,24 @@ class SSClient(BizHawkClient):
                 await ctx.send_msgs([{
                     "cmd": "LocationChecks",
                     "locations": [2010049]  # Use your actual Archipelago location ID
+                }])
+
+            if ram_data[48][0] == 1:  # KK
+                await ctx.send_msgs([{
+                    "cmd": "LocationChecks",
+                    "locations": [2010064]  # Use your actual Archipelago location ID
+                }])
+
+            if ram_data[49][0] == 1:  # Tetris
+                await ctx.send_msgs([{
+                    "cmd": "LocationChecks",
+                    "locations": [2010063]  # Use your actual Archipelago location ID
+                }])
+
+            if ram_data[50][0] == 1:  # Sage
+                await ctx.send_msgs([{
+                    "cmd": "LocationChecks",
+                    "locations": [2010065]  # Use your actual Archipelago location ID
                 }])
 
 
@@ -406,27 +430,142 @@ class SSClient(BizHawkClient):
                 }])
 
 
+            if ram_data[46][0] == 1:  # continue to check secrets
+                await ctx.send_msgs([{
+                    "cmd": "LocationChecks",
+                    "locations": [2010052]
+                }])
+            elif ram_data[46][0] == 2:
+                await ctx.send_msgs([{
+                    "cmd": "LocationChecks",
+                    "locations": [2010053]
+                }])
+            elif ram_data[46][0] == 3:
+                await ctx.send_msgs([{
+                    "cmd": "LocationChecks",
+                    "locations": [2010054]
+                }])
+            elif ram_data[46][0] == 4:
+                await ctx.send_msgs([{
+                    "cmd": "LocationChecks",
+                    "locations": [2010055]
+                }])
+
+
+            if ram_data[51][0] == 1:  # pits
+                await ctx.send_msgs([{
+                    "cmd": "LocationChecks",
+                    "locations": [2010056]
+                }])
+            elif ram_data[51][0] == 2:
+                await ctx.send_msgs([{
+                    "cmd": "LocationChecks",
+                    "locations": [2010057]
+                }])
+            elif ram_data[51][0] == 3:
+                await ctx.send_msgs([{
+                    "cmd": "LocationChecks",
+                    "locations": [2010058]
+                }])
+            elif ram_data[51][0] == 4:
+                await ctx.send_msgs([{
+                    "cmd": "LocationChecks",
+                    "locations": [2010059]
+                }])
+            elif ram_data[51][0] == 5:
+                await ctx.send_msgs([{
+                    "cmd": "LocationChecks",
+                    "locations": [2010060]
+                }])
+            elif ram_data[51][0] == 6:
+                await ctx.send_msgs([{
+                    "cmd": "LocationChecks",
+                    "locations": [2010061]
+                }])
+            elif ram_data[51][0] == 7:
+                await ctx.send_msgs([{
+                    "cmd": "LocationChecks",
+                    "locations": [2010062]
+                }])
+
 
             for i in range(len(ctx.items_received) - received_index):
                 if ctx.items_received[received_index + i].item == 2010000: # W2 Key
-                    await bizhawk.write(ctx.bizhawk_ctx, [(0x0BA6, [1], "WRAM")])
+                    await bizhawk.write(ctx.bizhawk_ctx, [(0x0BAC, [1], "WRAM")])
                     await bizhawk.write(ctx.bizhawk_ctx, [(0x0CFF, [received_index + i + 1], "WRAM")])
 
                 elif ctx.items_received[received_index + i].item == 2010001: # W3 Key
-                    await bizhawk.write(ctx.bizhawk_ctx, [(0x0BA8, [1], "WRAM")])
+                    await bizhawk.write(ctx.bizhawk_ctx, [(0x0BAE, [1], "WRAM")])
                     await bizhawk.write(ctx.bizhawk_ctx, [(0x0CFF, [received_index + i + 1], "WRAM")])
 
                 elif ctx.items_received[received_index + i].item == 2010002: # End Credits Key
-                    await bizhawk.write(ctx.bizhawk_ctx, [(0x0BAA, [1], "WRAM")])
+                    await bizhawk.write(ctx.bizhawk_ctx, [(0x0BB0, [1], "WRAM")])
                     await bizhawk.write(ctx.bizhawk_ctx, [(0x0CFF, [received_index + i + 1], "WRAM")])
 
                 elif ctx.items_received[received_index + i].item == 2010003: # Claw Machine Key
-                    await bizhawk.write(ctx.bizhawk_ctx, [(0x0BAC, [1], "WRAM")])
+                    await bizhawk.write(ctx.bizhawk_ctx, [(0x0BB2, [1], "WRAM")])
                     await bizhawk.write(ctx.bizhawk_ctx, [(0x0CFF, [received_index + i + 1], "WRAM")])
 
                 elif ctx.items_received[received_index + i].item == 2010004: # Coins
                     await bizhawk.write(ctx.bizhawk_ctx, [(0x0B98, [min(ram_data[45][0] + 1, 255)], "WRAM")])
                     await bizhawk.write(ctx.bizhawk_ctx, [(0x0CFF, [received_index + i + 1], "WRAM")])
+
+                elif ctx.items_received[received_index + i].item == 2010005: # secret 1
+                    await bizhawk.write(ctx.bizhawk_ctx, [(0x0B9C, [1], "WRAM")])
+                    await bizhawk.write(ctx.bizhawk_ctx, [(0x0CFF, [received_index + i + 1], "WRAM")])
+
+                elif ctx.items_received[received_index + i].item == 2010006: # secret 2
+                    await bizhawk.write(ctx.bizhawk_ctx, [(0x0B9C, [2], "WRAM")])
+                    await bizhawk.write(ctx.bizhawk_ctx, [(0x0CFF, [received_index + i + 1], "WRAM")])
+
+                elif ctx.items_received[received_index + i].item == 2010007: # secret 3
+                    await bizhawk.write(ctx.bizhawk_ctx, [(0x0B9C, [3], "WRAM")])
+                    await bizhawk.write(ctx.bizhawk_ctx, [(0x0CFF, [received_index + i + 1], "WRAM")])
+
+                elif ctx.items_received[received_index + i].item == 2010008: # secret 4
+                    await bizhawk.write(ctx.bizhawk_ctx, [(0x0B9C, [4], "WRAM")])
+                    await bizhawk.write(ctx.bizhawk_ctx, [(0x0CFF, [received_index + i + 1], "WRAM")])
+
+                elif ctx.items_received[received_index + i].item == 2010009: # death 1
+                    await bizhawk.write(ctx.bizhawk_ctx, [(0x0B94, [0], "WRAM")])
+                    await bizhawk.write(ctx.bizhawk_ctx, [(0x0CFF, [received_index + i + 1], "WRAM")])
+
+                elif ctx.items_received[received_index + i].item == 2010010: # death 2
+                    await bizhawk.write(ctx.bizhawk_ctx, [(0x0B94, [0], "WRAM")])
+                    await bizhawk.write(ctx.bizhawk_ctx, [(0x0CFF, [received_index + i + 1], "WRAM")])
+
+                elif ctx.items_received[received_index + i].item == 2010011: # death 3
+                    await bizhawk.write(ctx.bizhawk_ctx, [(0x0B94, [0], "WRAM")])
+                    await bizhawk.write(ctx.bizhawk_ctx, [(0x0CFF, [received_index + i + 1], "WRAM")])
+
+                elif ctx.items_received[received_index + i].item == 2010012: # death 4
+                    await bizhawk.write(ctx.bizhawk_ctx, [(0x0B94, [0], "WRAM")])
+                    await bizhawk.write(ctx.bizhawk_ctx, [(0x0CFF, [received_index + i + 1], "WRAM")])
+
+                elif ctx.items_received[received_index + i].item == 2010013: # death 5
+                    await bizhawk.write(ctx.bizhawk_ctx, [(0x0B94, [0], "WRAM")])
+                    await bizhawk.write(ctx.bizhawk_ctx, [(0x0CFF, [received_index + i + 1], "WRAM")])
+
+                elif ctx.items_received[received_index + i].item == 2010014: # death 6
+                    await bizhawk.write(ctx.bizhawk_ctx, [(0x0B94, [0], "WRAM")])
+                    await bizhawk.write(ctx.bizhawk_ctx, [(0x0CFF, [received_index + i + 1], "WRAM")])
+
+                elif ctx.items_received[received_index + i].item == 2010015: # death 7
+                    await bizhawk.write(ctx.bizhawk_ctx, [(0x0B94, [0], "WRAM")])
+                    await bizhawk.write(ctx.bizhawk_ctx, [(0x0CFF, [received_index + i + 1], "WRAM")])
+
+                elif ctx.items_received[received_index + i].item == 20100016:  # death 8
+                    await bizhawk.write(ctx.bizhawk_ctx, [(0x0B94, [0], "WRAM")])
+                    await bizhawk.write(ctx.bizhawk_ctx, [(0x0CFF, [received_index + i + 1], "WRAM")])
+
+                elif ctx.items_received[received_index + i].item == 2010017:  # death 9
+                    await bizhawk.write(ctx.bizhawk_ctx, [(0x0B94, [0], "WRAM")])
+                    await bizhawk.write(ctx.bizhawk_ctx, [(0x0CFF, [received_index + i + 1], "WRAM")])
+
+                elif ctx.items_received[received_index + i].item == 2010018:  # death 10
+                    await bizhawk.write(ctx.bizhawk_ctx, [(0x0B94, [0], "WRAM")])
+                    await bizhawk.write(ctx.bizhawk_ctx, [(0x0CFF, [received_index + i + 1], "WRAM")])
+
 
 
 
@@ -447,7 +586,11 @@ class SSClient(BizHawkClient):
             return
 
         if ctx.slot_info is not None:
-            print(ctx.slot_data)
-            print(ctx.slot_info)
-            if ctx.slot_data.get("progress_per_lvl") == 1:
+            if ctx.slot_data.get("progress_per_lvl") == 0:
                 await bizhawk.write(ctx.bizhawk_ctx, [(0x0B96, [15], "WRAM")])
+
+            if ctx.slot_data.get("secret_ending") == 1:
+                await bizhawk.write(ctx.bizhawk_ctx, [(0x0B9E, [1], "WRAM")])
+
+            if ctx.slot_data.get("hidden_secret_stuff") == 1:
+                await bizhawk.write(ctx.bizhawk_ctx, [(0x0B9A, [1], "WRAM")])
