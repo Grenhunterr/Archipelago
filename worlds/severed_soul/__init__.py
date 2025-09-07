@@ -40,7 +40,7 @@ class SeveredSoulWeb(WebWorld):
 
 class SeveredSoulWorld(World):
     """2D Platformer for the Game Boy! (Copywrite Grenhunterr 2024)"""
-    game = "severed_soul"  # name of the game/world
+    game = "Severed Soul"  # name of the game/world
     options_dataclass = SSOptions  # options the player can set
     options: SSOptions  # typing hints for option results
     settings: typing.ClassVar[MyGameSettings]  # will be automatically assigned from type hint
@@ -66,7 +66,7 @@ class SeveredSoulWorld(World):
     # Items can be grouped using their names to allow easy checking if any item
     # from that group has been collected. Group names can also be used for !hint
     item_name_groups = {
-        "keys": {"W2 Key", "W3 Key", "End Credits Key", "Claw Machine Key"},
+        "keys": {"W2 Key", "W3 Key", "End Credits Key", "Claw Machine Key", "Mysterious Key"},
         "coins": {"Coin"},
         "secrets": {"Secret Item #1", "Secret Item #2", "Secret Item #3", "Secret Item #4"}
     }
@@ -93,6 +93,12 @@ class SeveredSoulWorld(World):
         self.multiworld.itempool.append(Item("W3 Key", ItemClassification.progression, self.item_name_to_id["W3 Key"], self.player))
         self.multiworld.itempool.append(Item("End Credits Key", ItemClassification.progression, self.item_name_to_id["End Credits Key"], self.player))
         self.multiworld.itempool.append(Item("Claw Machine Key", ItemClassification.progression, self.item_name_to_id["Claw Machine Key"], self.player))
+        totalItems -= 4
+
+        if self.options.secret_shop:
+            self.multiworld.itempool.append(
+                Item("Mysterious Key", ItemClassification.progression, self.item_name_to_id["Mysterious Key"], self.player))
+
 
         if self.options.secret_ending == True:
             self.multiworld.itempool.append(
@@ -103,36 +109,39 @@ class SeveredSoulWorld(World):
                 Item("Secret Item #3", ItemClassification.progression, self.item_name_to_id["Secret Item #3"], self.player))
             self.multiworld.itempool.append(
                 Item("Secret Item #4", ItemClassification.progression, self.item_name_to_id["Secret Item #4"], self.player))
+            totalItems -= 4
 
-        if self.options.traps >= 1:
-            self.multiworld.itempool.append(Item("Death #1", ItemClassification.trap, self.item_name_to_id["Death #1"], self.player))
-        if self.options.traps >= 2:
-            self.multiworld.itempool.append(Item("Death #2", ItemClassification.trap, self.item_name_to_id["Death #2"], self.player))
-        if self.options.traps >= 3:
-            self.multiworld.itempool.append(Item("Death #1", ItemClassification.trap, self.item_name_to_id["Death #3"], self.player))
-        if self.options.traps >= 4:
-            self.multiworld.itempool.append(Item("Death #4", ItemClassification.trap, self.item_name_to_id["Death #4"], self.player))
-        if self.options.traps >= 5:
-            self.multiworld.itempool.append(Item("Death #5", ItemClassification.trap, self.item_name_to_id["Death #5"], self.player))
-        if self.options.traps >= 6:
-            self.multiworld.itempool.append(Item("Death #6", ItemClassification.trap, self.item_name_to_id["Death #6"], self.player))
-        if self.options.traps >= 7:
-            self.multiworld.itempool.append(Item("Death #7", ItemClassification.trap, self.item_name_to_id["Death #7"], self.player))
-        if self.options.traps >= 8:
-            self.multiworld.itempool.append(Item("Death #8", ItemClassification.trap, self.item_name_to_id["Death #8"], self.player))
-        if self.options.traps >= 9:
-            self.multiworld.itempool.append(Item("Death #9", ItemClassification.trap, self.item_name_to_id["Death #9"], self.player))
-        if self.options.traps >= 10:
-            self.multiworld.itempool.append(Item("Death #10", ItemClassification.trap, self.item_name_to_id["Death #10"], self.player))
 
-        totalItems -= 1
+
+
 
         progCoins = totalItems // 2 if self.options.randomed_claw else 0
         for _ in range(progCoins):
             item = Item("Coin", ItemClassification.progression, 2010004, self.player)
             self.multiworld.itempool.append(item)
+            totalItems -= 1
 
-        for _ in range(totalItems-progCoins):
+
+        for _ in range(self.options.traps):
+            self.multiworld.itempool.append(Item("Death (Trap)", ItemClassification.trap, self.item_name_to_id["Death (Trap)"], self.player))
+            totalItems -= 1
+
+        for _ in range(self.options.pit_traps):
+            self.multiworld.itempool.append(Item("Pitfallin' Time! (Trap)", ItemClassification.trap, self.item_name_to_id["Pitfallin' Time! (Trap)"], self.player))
+            totalItems -= 1
+
+        totHeals = totalItems // 4 if self.options.health_items else 0
+
+        for _ in range(totHeals):
+            item = Item("+1 Health", ItemClassification.useful, 2010011, self.player)
+            self.multiworld.itempool.append(item)
+
+        for _ in range(totHeals):
+            item = Item("+2 Health", ItemClassification.useful, 2010012, self.player)
+            self.multiworld.itempool.append(item)
+
+
+        for _ in range(totalItems):
             item = Item("Coin", ItemClassification.filler, 2010004, self.player)
             self.multiworld.itempool.append(item)
 
@@ -140,11 +149,13 @@ class SeveredSoulWorld(World):
 
     def connect_entrances(self) -> None:
         connect_entrances(self)
-        from Utils import visualize_regions
-        visualize_regions(self.multiworld.get_region("Menu", self.player), f"{self.player_name}_world.puml",
-                          show_entrance_names=True,
-                          regions_to_highlight=self.multiworld.get_all_state(self.player).reachable_regions[
-                              self.player])
+        if self.options.puml_gen:
+
+            from Utils import visualize_regions
+            visualize_regions(self.multiworld.get_region("Menu", self.player), f"{self.player_name}_world.puml",
+                            show_entrance_names=True,
+                            regions_to_highlight=self.multiworld.get_all_state(self.player).reachable_regions[
+                                self.player])
 
     def fill_slot_data(self) -> dict[str, any]:
         # In order for our game client to handle the generated seed correctly we need to know what the user selected
@@ -152,5 +163,5 @@ class SeveredSoulWorld(World):
         # A dictionary returned from this method gets set as the slot_data and will be sent to the client after connecting.
         # The options dataclass has a method to return a `Dict[str, Any]` of each option name provided and the relevant
         # option's value.
-        names = ["progress_per_lvl", "secret_ending", "hidden_secret_stuff", "stupid_people"]
+        names = ["progress_per_lvl", "secret_ending", "hidden_secret_stuff", "stupid_people", "death_link", "rude_client"]
         return self.options.as_dict(*names)

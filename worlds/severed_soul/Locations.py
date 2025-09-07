@@ -2,7 +2,7 @@ from BaseClasses import Location
 
 
 class SeveredSoulLocation(Location):
-    game: str = "severed_soul"
+    game: str = "Severed Soul"
 
 location_table = {
     # World 1
@@ -85,6 +85,52 @@ location_table = {
 
     "Tetris Secret": 2010063,
     "K. K. Slider Secret": 2010064,
-    "The Wise Mystical Sage (Ha! You thought this was gonna say the Wise Mystical Tree, didn't you?) ((Secret))": 2010065,
+    "Sage Secret": 2010065,
 
+    "W1L1 Moundy": 2010066,
+    "W1L2 Moundy #1": 2010067,
+    "W1L2 Moundy #2": 2010068,
+    "W1L3 Moundy #1": 2010069,
+    "W1L3 Moundy #2": 2010070,
+
+    "W2L1 Coud": 2010071,
+    "W2L2 Coud": 2010072,
+    "W2L3 Coud": 2010073,
+    "W2L4 Coud #1": 2010074,
+    "W2L4 Coud #2": 2010075,
+    "W2L4 Coud #3": 2010076,
+
+    "W3L1 Batte #1": 2010077,
+    "W3L1 Batte #2": 2010078,
+    "W3L2 Batte": 2010079,
+    "W3L3 Batte": 2010080,
+    "W3L4 Batte": 2010081,
+
+    "Why would you come up here?": 2010082,
+
+    "W1L1 Completed": 2010083,
+    "W1L2 Completed": 2010084,
+    "W1L3 Completed": 2010085,
+    "W1L4 Completed": 2010086,
+    "W2L1 Completed": 2010087,
+    "W2L2 Completed": 2010088,
+    "W2L3 Completed": 2010089,
+    "W2L4 Completed": 2010090,
+    "W3L1 Completed": 2010091,
+    "W3L2 Completed": 2010092,
+    "W3L3 Completed": 2010093,
+    "W3L4 Completed": 2010094,
+    "W3L5 Completed": 2010095,
+    "W3L6 Completed": 2010096,
+
+    "Trinket (Store)": 2010097,
+    "Artifact (Store)": 2010098,
+    "Scroll (Store)": 2010099,
+    "Nail (Store)": 2010100,
+    "Lightbulb (Store)": 2010101,
+    "Hourglass (Store)": 2010102,
+    "Severed Soul Cartridge (Store)": 2010103,
+    "Teleporter (Store)": 2010104,
+
+    "Konami Code Secret": 2010105,
 }

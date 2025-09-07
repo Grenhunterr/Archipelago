@@ -1,7 +1,10 @@
 from platform import system
 from typing import TYPE_CHECKING
+import asyncio
+import logging
 from NetUtils import ClientStatus
 
+import random
 import worlds._bizhawk as bizhawk
 from worlds._bizhawk.client import BizHawkClient
 from worlds.AutoWorld import World
@@ -11,9 +14,14 @@ if TYPE_CHECKING:
 
 
 class SSClient(BizHawkClient):
-    game = "severed_soul"           # Match this with your World name
+    game = "Severed Soul"           # Match this with your World name
     system = "GB"                  # SNES, GBA, etc.
     patch_suffix = ".apss"    # Optional: show these files in "Open Patch"
+    death_link_ready = False
+    previous_death_link = 0
+    tagged = -1
+    hinted_claw = False
+
 
     async def validate_rom(self, ctx: "BizHawkClientContext") -> bool:
         try:
@@ -85,19 +93,62 @@ class SSClient(BizHawkClient):
                 (0x0C04, 1, "WRAM"),  # Slime-y Secret
                 (0x0C06, 1, "WRAM"),  # The Eye Sees All
                 (0x0C08, 1, "WRAM"),  # Duck
-                (0x0C3A, 1, "WRAM"),  # Claw Machine Draw (multiple items, all share this)
+                (0x0C7C, 1, "WRAM"),  # Claw Machine Draw (multiple items, all share this)
                 (0x0CFF, 1, "WRAM"),
                 (0x0B98, 1, "WRAM"), # coins maybe
                 (0x0B9E, 1, "WRAM"), # Secret Checks
                 (0x0B94, 1, "WRAM"), # health so it can go bye bye
-                (0x0C12, 1, "WRAM"), # KK (48)
+                (0x0C14, 1, "WRAM"), # KK (48)
                 (0x0C10, 1, "WRAM"), # Tetris
                 (0x0C0A, 1, "WRAM"), # sage
-                (0x0C14, 1, "WRAM"), #pits
+                (0x0C16, 1, "WRAM"), #pits
+                (0x0BB4, 1, "WRAM"), # Claw Machine Interact so I can hint it lmao (52)
+                (0x0C18, 1, "WRAM"), # W1L1
+                (0x0C1A, 1, "WRAM"), # W1L2
+                (0x0C1C, 1, "WRAM"), # W1L3
+                (0x0C1E, 1, "WRAM"), # W1L4
+                (0x0C20, 1, "WRAM"), # W2L1
+                (0x0C22, 1, "WRAM"), # W2L2
+                (0x0C24, 1, "WRAM"), # W2L3
+                (0x0C26, 1, "WRAM"), # W2L4
+                (0x0C28, 1, "WRAM"), # W3L1
+                (0x0C2A, 1, "WRAM"), # W3L2
+                (0x0C2C, 1, "WRAM"), # W3L3
+                (0x0C2E, 1, "WRAM"), # W3L4
+                (0x0C30, 1, "WRAM"), # W3L5 (65)
+                (0x0C32, 1, "WRAM"), # W3L6
+                (0x0C34, 1, "WRAM"), #enem 1 (67)
+                (0x0C36, 1, "WRAM"),
+                (0x0C38, 1, "WRAM"),
+                (0x0C3A, 1, "WRAM"),
+                (0x0C3C, 1, "WRAM"),
+                (0x0C3E, 1, "WRAM"),
+                (0x0C40, 1, "WRAM"),
+                (0x0C42, 1, "WRAM"),
+                (0x0C44, 1, "WRAM"),
+                (0x0C46, 1, "WRAM"),
+                (0x0C48, 1, "WRAM"),
+                (0x0C4A, 1, "WRAM"),
+                (0x0C4C, 1, "WRAM"),
+                (0x0C4E, 1, "WRAM"),
+                (0x0C50, 1, "WRAM"),
+                (0x0C52, 1, "WRAM"), # (82)
+                (0x0C12, 1, "WRAM"), # 83 (sam dont you dare get up there!)
+                (0x0C56, 1, "WRAM"), # 84
+                (0x0C58, 1, "WRAM"), # 85 pit trapsss
             ]))
-            print(ram_data)
-            print(len(ram_data))
 
+
+            await self.handle_death_link(ctx, ram_data[47][0])
+            if self.tagged < 0:
+                if ctx.slot_info is not None:
+                    if ctx.slot_data.get("death_link") == 0:
+                        self.tagged = 0
+                        await ctx.update_death_link(False)
+                    else:
+                        self.tagged = 1
+                        self.previous_death_link = ctx.bizhawk_ctx
+                        await ctx.update_death_link(True)
 
 
             # EXAMPLE: Trigger a location check if bit 3 of byte 0x02000004 is set
@@ -329,8 +380,88 @@ class SSClient(BizHawkClient):
                     "locations": [2010037]  # Use your actual Archipelago location ID
                 }])
 
+        # level completions
 
+            if ram_data[53][0] == 1:
+                await ctx.send_msgs([{
+                    "cmd": "LocationChecks",
+                    "locations": [2010083]  # Use your actual Archipelago location ID
+                }])
 
+            if ram_data[54][0] == 1:
+                await ctx.send_msgs([{
+                    "cmd": "LocationChecks",
+                    "locations": [2010084]  # Use your actual Archipelago location ID
+                }])
+
+            if ram_data[55][0] == 1:
+                await ctx.send_msgs([{
+                    "cmd": "LocationChecks",
+                    "locations": [2010085]  # Use your actual Archipelago location ID
+                }])
+            if ram_data[56][0] == 1:
+                await ctx.send_msgs([{
+                    "cmd": "LocationChecks",
+                    "locations": [2010086]  # Use your actual Archipelago location ID
+                }])
+
+            if ram_data[57][0] == 1:
+                await ctx.send_msgs([{
+                    "cmd": "LocationChecks",
+                    "locations": [2010087]  # Use your actual Archipelago location ID
+                }])
+
+            if ram_data[58][0] == 1:
+                await ctx.send_msgs([{
+                    "cmd": "LocationChecks",
+                    "locations": [2010088]  # Use your actual Archipelago location ID
+                }])
+            if ram_data[59][0] == 1:
+                await ctx.send_msgs([{
+                    "cmd": "LocationChecks",
+                    "locations": [2010089]  # Use your actual Archipelago location ID
+                }])
+
+            if ram_data[60][0] == 1:
+                await ctx.send_msgs([{
+                    "cmd": "LocationChecks",
+                    "locations": [2010090]  # Use your actual Archipelago location ID
+                }])
+
+            if ram_data[61][0] == 1:
+                await ctx.send_msgs([{
+                    "cmd": "LocationChecks",
+                    "locations": [2010091]  # Use your actual Archipelago location ID
+                }])
+            if ram_data[62][0] == 1:
+                await ctx.send_msgs([{
+                    "cmd": "LocationChecks",
+                    "locations": [2010092]  # Use your actual Archipelago location ID
+                }])
+
+            if ram_data[63][0] == 1:
+                await ctx.send_msgs([{
+                    "cmd": "LocationChecks",
+                    "locations": [2010093]  # Use your actual Archipelago location ID
+                }])
+
+            if ram_data[64][0] == 1:
+                await ctx.send_msgs([{
+                    "cmd": "LocationChecks",
+                    "locations": [2010094]  # Use your actual Archipelago location ID
+                }])
+
+            if ram_data[65][0] == 1:
+                await ctx.send_msgs([{
+                    "cmd": "LocationChecks",
+                    "locations": [2010095]  # Use your actual Archipelago location ID
+                }])
+
+            if ram_data[66][0] == 1:
+                await ctx.send_msgs([{
+                    "cmd": "LocationChecks",
+                    "locations": [2010096]  # Use your actual Archipelago location ID
+                }])
 
         # secret crap or something idk
 
@@ -338,6 +469,12 @@ class SSClient(BizHawkClient):
                 await ctx.send_msgs([{
                     "cmd": "LocationChecks",
                     "locations": [2010050]  # Use your actual Archipelago location ID
+                }])
+
+            if ram_data[83][0] == 1:
+                await ctx.send_msgs([{
+                    "cmd": "LocationChecks",
+                    "locations": [2010082]  # Use your actual Archipelago location ID
                 }])
 
             if ram_data[41][0] == 1:  # eye
@@ -370,11 +507,109 @@ class SSClient(BizHawkClient):
                     "locations": [2010065]  # Use your actual Archipelago location ID
                 }])
 
+            #enemy hits this is going to be great
 
+            if ram_data[67][0] == 1:
+                await ctx.send_msgs([{
+                    "cmd": "LocationChecks",
+                    "locations": [2010066]  # Use your actual Archipelago location ID
+                }])
 
+            if ram_data[68][0] == 1:
+                await ctx.send_msgs([{
+                    "cmd": "LocationChecks",
+                    "locations": [2010067]  # Use your actual Archipelago location ID
+                }])
 
+            if ram_data[69][0] == 1:
+                await ctx.send_msgs([{
+                    "cmd": "LocationChecks",
+                    "locations": [2010068]  # Use your actual Archipelago location ID
+                }])
 
+            if ram_data[70][0] == 1:
+                await ctx.send_msgs([{
+                    "cmd": "LocationChecks",
+                    "locations": [2010069]  # Use your actual Archipelago location ID
+                }])
 
+            if ram_data[71][0] == 1:
+                await ctx.send_msgs([{
+                    "cmd": "LocationChecks",
+                    "locations": [2010070]  # Use your actual Archipelago location ID
+                }])
+
+            if ram_data[72][0] == 1:
+                await ctx.send_msgs([{
+                    "cmd": "LocationChecks",
+                    "locations": [2010071]  # Use your actual Archipelago location ID
+                }])
+
+            if ram_data[73][0] == 1:
+                await ctx.send_msgs([{
+                    "cmd": "LocationChecks",
+                    "locations": [2010072]  # Use your actual Archipelago location ID
+                }])
+
+            if ram_data[74][0] == 1:
+                await ctx.send_msgs([{
+                    "cmd": "LocationChecks",
+                    "locations": [2010073]  # Use your actual Archipelago location ID
+                }])
+
+            if ram_data[75][0] == 1:
+                await ctx.send_msgs([{
+                    "cmd": "LocationChecks",
+                    "locations": [2010074]  # Use your actual Archipelago location ID
+                }])
+
+            if ram_data[76][0] == 1:
+                await ctx.send_msgs([{
+                    "cmd": "LocationChecks",
+                    "locations": [2010075]  # Use your actual Archipelago location ID
+                }])
+
+            if ram_data[77][0] == 1:
+                await ctx.send_msgs([{
+                    "cmd": "LocationChecks",
+                    "locations": [2010076]  # Use your actual Archipelago location ID
+                }])
+
+            if ram_data[78][0] == 1:
+                await ctx.send_msgs([{
+                    "cmd": "LocationChecks",
+                    "locations": [2010077]  # Use your actual Archipelago location ID
+                }])
+
+            if ram_data[79][0] == 1:
+                await ctx.send_msgs([{
+                    "cmd": "LocationChecks",
+                    "locations": [2010078]  # Use your actual Archipelago location ID
+                }])
+
+            if ram_data[80][0] == 1:
+                await ctx.send_msgs([{
+                    "cmd": "LocationChecks",
+                    "locations": [2010079]  # Use your actual Archipelago location ID
+                }])
+
+            if ram_data[81][0] == 1:
+                await ctx.send_msgs([{
+                    "cmd": "LocationChecks",
+                    "locations": [2010080]  # Use your actual Archipelago location ID
+                }])
+
+            if ram_data[82][0] == 1:
+                await ctx.send_msgs([{
+                    "cmd": "LocationChecks",
+                    "locations": [2010081]  # Use your actual Archipelago location ID
+                }])
+
+            if ram_data[84][0] == 1:
+                await ctx.send_msgs([{
+                    "cmd": "LocationChecks",
+                    "locations": [2010105]  # Use your actual Archipelago location ID
+                }])
 
             received_index = ram_data[44][0]
 
@@ -488,27 +723,58 @@ class SSClient(BizHawkClient):
                     "locations": [2010062]
                 }])
 
+            if not self.hinted_claw:
+                if ram_data[52][0] == 1:
+                    await ctx.send_msgs([{"cmd": "LocationScouts", "locations": [2010038, 2010039, 2010040, 2010041, 2010042, 2010043, 2010044, 2010045, 2010046, 2010047], "create_as_hint": 2}])
+                    if ctx.slot_data.get("rude_client") == 1:
+                        await ctx.send_msgs([{"cmd": "Say", "text": "yay I found the claw machine. whaddya all want?"}])
+                    self.hinted_claw = True
+
+
+
 
             for i in range(len(ctx.items_received) - received_index):
                 if ctx.items_received[received_index + i].item == 2010000: # W2 Key
                     await bizhawk.write(ctx.bizhawk_ctx, [(0x0BAC, [1], "WRAM")])
                     await bizhawk.write(ctx.bizhawk_ctx, [(0x0CFF, [received_index + i + 1], "WRAM")])
+                    if ctx.slot_data.get("rude_client") == 1:
+                        await ctx.send_msgs([{"cmd": "Say", "text": "finally, took you long enough for that key."}])
 
                 elif ctx.items_received[received_index + i].item == 2010001: # W3 Key
                     await bizhawk.write(ctx.bizhawk_ctx, [(0x0BAE, [1], "WRAM")])
                     await bizhawk.write(ctx.bizhawk_ctx, [(0x0CFF, [received_index + i + 1], "WRAM")])
+                    if ctx.slot_data.get("rude_client") == 1:
+                        await ctx.send_msgs([{"cmd": "Say", "text": "yeeeeeesh, been waiting a looooooong time. thanks anyway"}])
 
                 elif ctx.items_received[received_index + i].item == 2010002: # End Credits Key
                     await bizhawk.write(ctx.bizhawk_ctx, [(0x0BB0, [1], "WRAM")])
                     await bizhawk.write(ctx.bizhawk_ctx, [(0x0CFF, [received_index + i + 1], "WRAM")])
+                    if ctx.slot_data.get("rude_client") == 1:
+                        await ctx.send_msgs([{"cmd": "Say", "text": "finally, I can beat this and sit back and watch again."}])
 
                 elif ctx.items_received[received_index + i].item == 2010003: # Claw Machine Key
                     await bizhawk.write(ctx.bizhawk_ctx, [(0x0BB2, [1], "WRAM")])
                     await bizhawk.write(ctx.bizhawk_ctx, [(0x0CFF, [received_index + i + 1], "WRAM")])
+                    if ctx.slot_data.get("rude_client") == 1:
+                        await ctx.send_msgs([{"cmd": "Say", "text": "let's go gambling!!!!!!!!!!!!!!"}])
 
                 elif ctx.items_received[received_index + i].item == 2010004: # Coins
                     await bizhawk.write(ctx.bizhawk_ctx, [(0x0B98, [min(ram_data[45][0] + 1, 255)], "WRAM")])
                     await bizhawk.write(ctx.bizhawk_ctx, [(0x0CFF, [received_index + i + 1], "WRAM")])
+                    if ctx.slot_data.get("rude_client") == 1:
+                        await ctx.send_msgs([{"cmd": "Say", "text": "thanks. that was so useful"}])
+
+                elif ctx.items_received[received_index + i].item == 2010014: # 10 Coins
+                    await bizhawk.write(ctx.bizhawk_ctx, [(0x0B98, [min(ram_data[45][0] + 10, 255)], "WRAM")])
+                    await bizhawk.write(ctx.bizhawk_ctx, [(0x0CFF, [received_index + i + 1], "WRAM")])
+                    if ctx.slot_data.get("rude_client") == 1:
+                        await ctx.send_msgs([{"cmd": "Say", "text": "actually, that was just 10 times more helpful than usual"}])
+
+                elif ctx.items_received[received_index + i].item == 2010013: # Coins
+                    await bizhawk.write(ctx.bizhawk_ctx, [(0x0B98, [min(ram_data[45][0] + 2, 255)], "WRAM")])
+                    await bizhawk.write(ctx.bizhawk_ctx, [(0x0CFF, [received_index + i + 1], "WRAM")])
+                    if ctx.slot_data.get("rude_client") == 1:
+                        await ctx.send_msgs([{"cmd": "Say", "text": "only 2x more helpful, but still isn't"}])
 
                 elif ctx.items_received[received_index + i].item == 2010005: # secret 1
                     await bizhawk.write(ctx.bizhawk_ctx, [(0x0B9C, [1], "WRAM")])
@@ -529,42 +795,26 @@ class SSClient(BizHawkClient):
                 elif ctx.items_received[received_index + i].item == 2010009: # death 1
                     await bizhawk.write(ctx.bizhawk_ctx, [(0x0B94, [0], "WRAM")])
                     await bizhawk.write(ctx.bizhawk_ctx, [(0x0CFF, [received_index + i + 1], "WRAM")])
+                    if ctx.slot_data.get("rude_client") == 1:
+                        await ctx.send_msgs([{"cmd": "Say", "text": "lovely. I died. time to restart that entire level again."}])
 
-                elif ctx.items_received[received_index + i].item == 2010010: # death 2
-                    await bizhawk.write(ctx.bizhawk_ctx, [(0x0B94, [0], "WRAM")])
+                elif ctx.items_received[received_index + i].item == 2010011: # heal 1
+                    await bizhawk.write(ctx.bizhawk_ctx, [(0x0B94, [ram_data[47][0] + 1], "WRAM")])
                     await bizhawk.write(ctx.bizhawk_ctx, [(0x0CFF, [received_index + i + 1], "WRAM")])
+                    if ctx.slot_data.get("rude_client") == 1:
+                        await ctx.send_msgs([{"cmd": "Say", "text": "thank you."}])
 
-                elif ctx.items_received[received_index + i].item == 2010011: # death 3
-                    await bizhawk.write(ctx.bizhawk_ctx, [(0x0B94, [0], "WRAM")])
+                elif ctx.items_received[received_index + i].item == 2010012: # heal 2
+                    await bizhawk.write(ctx.bizhawk_ctx, [(0x0B94, [ram_data[47][0] + 2], "WRAM")])
                     await bizhawk.write(ctx.bizhawk_ctx, [(0x0CFF, [received_index + i + 1], "WRAM")])
+                    if ctx.slot_data.get("rude_client") == 1:
+                        await ctx.send_msgs([{"cmd": "Say", "text": "thank you, but double"}])
 
-                elif ctx.items_received[received_index + i].item == 2010012: # death 4
-                    await bizhawk.write(ctx.bizhawk_ctx, [(0x0B94, [0], "WRAM")])
+                elif ctx.items_received[received_index + i].item == 2010010: # pits trap
+                    await bizhawk.write(ctx.bizhawk_ctx, [(0x0C54, [ram_data[85][0] + 1], "WRAM")])
                     await bizhawk.write(ctx.bizhawk_ctx, [(0x0CFF, [received_index + i + 1], "WRAM")])
-
-                elif ctx.items_received[received_index + i].item == 2010013: # death 5
-                    await bizhawk.write(ctx.bizhawk_ctx, [(0x0B94, [0], "WRAM")])
-                    await bizhawk.write(ctx.bizhawk_ctx, [(0x0CFF, [received_index + i + 1], "WRAM")])
-
-                elif ctx.items_received[received_index + i].item == 2010014: # death 6
-                    await bizhawk.write(ctx.bizhawk_ctx, [(0x0B94, [0], "WRAM")])
-                    await bizhawk.write(ctx.bizhawk_ctx, [(0x0CFF, [received_index + i + 1], "WRAM")])
-
-                elif ctx.items_received[received_index + i].item == 2010015: # death 7
-                    await bizhawk.write(ctx.bizhawk_ctx, [(0x0B94, [0], "WRAM")])
-                    await bizhawk.write(ctx.bizhawk_ctx, [(0x0CFF, [received_index + i + 1], "WRAM")])
-
-                elif ctx.items_received[received_index + i].item == 20100016:  # death 8
-                    await bizhawk.write(ctx.bizhawk_ctx, [(0x0B94, [0], "WRAM")])
-                    await bizhawk.write(ctx.bizhawk_ctx, [(0x0CFF, [received_index + i + 1], "WRAM")])
-
-                elif ctx.items_received[received_index + i].item == 2010017:  # death 9
-                    await bizhawk.write(ctx.bizhawk_ctx, [(0x0B94, [0], "WRAM")])
-                    await bizhawk.write(ctx.bizhawk_ctx, [(0x0CFF, [received_index + i + 1], "WRAM")])
-
-                elif ctx.items_received[received_index + i].item == 2010018:  # death 10
-                    await bizhawk.write(ctx.bizhawk_ctx, [(0x0B94, [0], "WRAM")])
-                    await bizhawk.write(ctx.bizhawk_ctx, [(0x0CFF, [received_index + i + 1], "WRAM")])
+                    if ctx.slot_data.get("rude_client") == 1:
+                        await ctx.send_msgs([{"cmd": "Say", "text": "thank you."}])
 
 
 
@@ -594,3 +844,44 @@ class SSClient(BizHawkClient):
 
             if ctx.slot_data.get("hidden_secret_stuff") == 1:
                 await bizhawk.write(ctx.bizhawk_ctx, [(0x0B9A, [1], "WRAM")])
+
+
+    async def handle_death_link(self, ctx: "BizHawkClientContext", ghost_health: int) -> None:
+
+        if ctx.slot_data.get("death_link") == 1 or ctx.slot_data.get("death_link") == True:
+
+            death_message_num = random.randrange(0, 10)
+
+            if not self.death_link_ready:
+                if ghost_health > 0:
+                    self.death_link_ready = True
+                    return
+
+            if self.previous_death_link != ctx.last_death_link:
+                await bizhawk.write(ctx.bizhawk_ctx, [(0x0B94, [0], "WRAM")])
+                self.death_link_ready = False
+                self.previous_death_link = ctx.last_death_link
+
+            if ghost_health == 0:
+                if death_message_num == 1:
+                    await ctx.send_death(f"{ctx.player_names[ctx.slot]} screwed you all over. :)")
+                elif death_message_num == 2:
+                    await ctx.send_death(f"{ctx.player_names[ctx.slot]} fell into a pit lmao.")
+                elif death_message_num == 3:
+                    await ctx.send_death(f"{ctx.player_names[ctx.slot]} got his soul split by Bob the Wizard.")
+                elif death_message_num == 4:
+                    await ctx.send_death(f"{ctx.player_names[ctx.slot]} couldn't dodge a bat.")
+                elif death_message_num == 5:
+                    await ctx.send_death(f"{ctx.player_names[ctx.slot]} wasn't determined enough.")
+                elif death_message_num == 6:
+                    await ctx.send_death(f"{ctx.player_names[ctx.slot]} died, so now you all die!")
+                elif death_message_num == 7:
+                    await ctx.send_death(f"{ctx.player_names[ctx.slot]} died to fall damage.")
+                elif death_message_num == 8:
+                    await ctx.send_death(f"Hello, again, to all {ctx.player_names[ctx.slot]}'s friends. Together, we could play some rock and roll.")
+                elif death_message_num == 9:
+                    await ctx.send_death(f"{ctx.player_names[ctx.slot]}. Come on, man. Just, stop dying!")
+                else:
+                    await ctx.send_death(f"{ctx.player_names[ctx.slot]} didn't play through the game, or the game's tutorial.")
+                self.previous_death_link = ctx.last_death_link
+                self.death_link_ready = False
