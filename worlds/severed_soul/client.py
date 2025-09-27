@@ -93,7 +93,7 @@ class SSClient(BizHawkClient):
                 (0x0C04, 1, "WRAM"),  # Slime-y Secret
                 (0x0C06, 1, "WRAM"),  # The Eye Sees All
                 (0x0C08, 1, "WRAM"),  # Duck
-                (0x0C7C, 1, "WRAM"),  # Claw Machine Draw (multiple items, all share this)
+                (0x0C96, 1, "WRAM"),  # Claw Machine Draw (multiple items, all share this)
                 (0x0CFF, 1, "WRAM"),
                 (0x0B98, 1, "WRAM"), # coins maybe
                 (0x0B9E, 1, "WRAM"), # Secret Checks
@@ -856,11 +856,13 @@ class SSClient(BizHawkClient):
                 if ghost_health > 0:
                     self.death_link_ready = True
                     return
+                return
 
             if self.previous_death_link != ctx.last_death_link:
-                await bizhawk.write(ctx.bizhawk_ctx, [(0x0B94, [0], "WRAM")])
-                self.death_link_ready = False
-                self.previous_death_link = ctx.last_death_link
+                if self.death_link_ready:
+                    await bizhawk.write(ctx.bizhawk_ctx, [(0x0B94, [0], "WRAM")])
+                    self.death_link_ready = False
+                    self.previous_death_link = ctx.last_death_link
 
             if ghost_health == 0:
                 if death_message_num == 1:

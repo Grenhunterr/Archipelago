@@ -96,8 +96,8 @@ class SeveredSoulWorld(World):
         totalItems -= 4
 
         if self.options.secret_shop:
-            self.multiworld.itempool.append(
-                Item("Mysterious Key", ItemClassification.progression, self.item_name_to_id["Mysterious Key"], self.player))
+            self.multiworld.itempool.append(Item("Mysterious Key", ItemClassification.progression, self.item_name_to_id["Mysterious Key"], self.player))
+            totalItems -= 1
 
 
         if self.options.secret_ending == True:
@@ -135,10 +135,12 @@ class SeveredSoulWorld(World):
         for _ in range(totHeals):
             item = Item("+1 Health", ItemClassification.useful, 2010011, self.player)
             self.multiworld.itempool.append(item)
+            totalItems -= 1
 
         for _ in range(totHeals):
             item = Item("+2 Health", ItemClassification.useful, 2010012, self.player)
             self.multiworld.itempool.append(item)
+            totalItems -= 1
 
 
         for _ in range(totalItems):
