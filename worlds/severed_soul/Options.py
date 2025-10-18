@@ -66,6 +66,11 @@ class Health_items(Toggle):
     display_name = "Health Items"
     default = True
 
+class More_Coins(Toggle):
+    """toggling this activates the items '2 Coins' and '10 Coins'. don't worry, it will still cap out at 255"""
+    display_name = "More Coins"
+    default = False
+
 class Secret_Shop(Toggle):
     """secret shop? what are you talking about? I never saw something like that... weird timeline this is. (don't turn this on just yet, it's broken)"""
     display_name = "Secret Shop"
@@ -87,7 +92,9 @@ class SSOptions(PerGameCommonOptions):
     death_link: DeathLink
     puml_gen: Check_Map
     health_items: Health_items
+    more_coins: More_Coins
     secret_shop: Secret_Shop
+
 
 
 option_definitions = {

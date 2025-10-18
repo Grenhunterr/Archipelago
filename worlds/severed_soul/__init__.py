@@ -116,10 +116,11 @@ class SeveredSoulWorld(World):
 
 
         progCoins = totalItems // 2 if self.options.randomed_claw else 0
-        for _ in range(progCoins):
-            item = Item("Coin", ItemClassification.progression, 2010004, self.player)
-            self.multiworld.itempool.append(item)
-            totalItems -= 1
+        if not self.options.more_coins:
+            for _ in range(progCoins):
+                item = Item("Coin", ItemClassification.progression, 2010004, self.player)
+                self.multiworld.itempool.append(item)
+                totalItems -= 1
 
 
         for _ in range(self.options.traps):
@@ -129,6 +130,24 @@ class SeveredSoulWorld(World):
         for _ in range(self.options.pit_traps):
             self.multiworld.itempool.append(Item("Pitfallin' Time! (Trap)", ItemClassification.trap, self.item_name_to_id["Pitfallin' Time! (Trap)"], self.player))
             totalItems -= 1
+
+        coinsforclaw = totalItems // 3 if self.options.more_coins and self.options.randomed_claw else 0
+        coinsgalore = totalItems // 5 if self.options.more_coins else 0
+
+        for _ in range(coinsforclaw):
+            item = Item("10 Coins", ItemClassification.progression, 2010013, self.player)
+            self.multiworld.itempool.append(item)
+            totalItems -= 1
+
+        for _ in range(coinsgalore):
+            if self.options.more_coins:
+                item = Item("2 Coins", ItemClassification.useful, 2010013, self.player)
+                self.multiworld.itempool.append(item)
+                totalItems -= 1
+            else:
+                item = Item("2 Coins", ItemClassification.filler, 2010013, self.player)
+                self.multiworld.itempool.append(item)
+                totalItems -= 1
 
         totHeals = totalItems // 4 if self.options.health_items else 0
 
@@ -154,7 +173,7 @@ class SeveredSoulWorld(World):
         if self.options.puml_gen:
 
             from Utils import visualize_regions
-            visualize_regions(self.multiworld.get_region("Menu", self.player), f"{self.player_name}_world.puml",
+            visualize_regions(self.multiworld.get_region("Menu", self.player), f"{self.player_name}_SeveredSoul_world.puml",
                             show_entrance_names=True,
                             regions_to_highlight=self.multiworld.get_all_state(self.player).reachable_regions[
                                 self.player])

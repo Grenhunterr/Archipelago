@@ -814,7 +814,7 @@ class SSClient(BizHawkClient):
                     await bizhawk.write(ctx.bizhawk_ctx, [(0x0C54, [ram_data[85][0] + 1], "WRAM")])
                     await bizhawk.write(ctx.bizhawk_ctx, [(0x0CFF, [received_index + i + 1], "WRAM")])
                     if ctx.slot_data.get("rude_client") == 1:
-                        await ctx.send_msgs([{"cmd": "Say", "text": "thank you."}])
+                        await ctx.send_msgs([{"cmd": "Say", "text": "great"}])
 
 
 
