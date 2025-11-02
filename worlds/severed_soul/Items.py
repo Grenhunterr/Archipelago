@@ -26,4 +26,6 @@ item_table = {
     "10 Coins": 2010014,
 
     "Mysterious Key": 2010015,
+
+    "Fortnite (Trap)": 2010016,
 }

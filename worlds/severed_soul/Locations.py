@@ -63,9 +63,9 @@ location_table = {
 
 
 
-    "The Eye Sees All": 2010048,
+    "The Eye Sees All Secret": 2010048,
     "Slime-y Secret": 2010049,
-    "Duck": 2010050,
+    "Secret Duck": 2010050,
 
 
     "Beaten Game": 2010051,
@@ -75,13 +75,13 @@ location_table = {
     "Secret Check #3": 2010054,
     "Secret Check #4": 2010055,
 
-    "Fell Down A Pit": 2010056,
-    "Fell Down The Pit Again": 2010057,
-    "You KNOW That There's A Pit. Why would you go down???": 2010058,
-    "Seriously? Again?": 2010059,
-    "...": 2010060,
-    "You need a therapist.": 2010061,
-    "Last Pitfallin' Check": 2010062,
+    "Pitfall - Fell Down A Pit": 2010056,
+    "Pitfall - Fell Down The Pit Again": 2010057,
+    "Pitfall - You KNOW That There's A Pit. Why would you go down???": 2010058,
+    "Pitfall - Seriously? Again?": 2010059,
+    "Pitfall - ...": 2010060,
+    "Pitfall - You need a therapist.": 2010061,
+    "Pitfall - Last Pitfallin' Check": 2010062,
 
     "Tetris Secret": 2010063,
     "K. K. Slider Secret": 2010064,
@@ -106,7 +106,7 @@ location_table = {
     "W3L3 Batte": 2010080,
     "W3L4 Batte": 2010081,
 
-    "Why would you come up here?": 2010082,
+    "W2L3 - Why would you come up here?": 2010082,
 
     "W1L1 Completed": 2010083,
     "W1L2 Completed": 2010084,
@@ -133,4 +133,6 @@ location_table = {
     "Teleporter (Store)": 2010104,
 
     "Konami Code Secret": 2010105,
+
+    "Examined Secret Shop": 2010106,
 }

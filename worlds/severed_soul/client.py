@@ -21,6 +21,7 @@ class SSClient(BizHawkClient):
     previous_death_link = 0
     tagged = -1
     hinted_claw = False
+    hinted_store = False
 
 
     async def validate_rom(self, ctx: "BizHawkClientContext") -> bool:
@@ -136,6 +137,16 @@ class SSClient(BizHawkClient):
                 (0x0C12, 1, "WRAM"), # 83 (sam dont you dare get up there!)
                 (0x0C56, 1, "WRAM"), # 84
                 (0x0C58, 1, "WRAM"), # 85 pit trapsss
+                (0x0C5A, 1, "WRAM"), # Secret Shop Hints
+                (0x0C5C, 1, "WRAM"), # 87 item #1 (trinket)
+                (0x0C5E, 1, "WRAM"), # 88a
+                (0x0C60, 1, "WRAM"), #89
+                (0x0C62, 1, "WRAM"), #90
+                (0x0C64, 1, "WRAM"), #91
+                (0x0C66, 1, "WRAM"), #92
+                (0x0C68, 1, "WRAM"), #93
+                (0x0C6A, 1, "WRAM"), #94
+                (0x0C70, 1, "WRAM"), #95 shop examine
             ]))
 
 
@@ -686,6 +697,30 @@ class SSClient(BizHawkClient):
                     "locations": [2010055]
                 }])
 
+            if ram_data[87][0] == 1:
+                await ctx.send_msgs([{"cmd": "LocationChecks", "locations": [2010097]}])
+
+            if ram_data[88][0] == 1:
+                await ctx.send_msgs([{"cmd": "LocationChecks", "locations": [2010098]}])
+
+            if ram_data[89][0] == 1:
+                await ctx.send_msgs([{"cmd": "LocationChecks", "locations": [2010099]}])
+
+            if ram_data[90][0] == 1:
+                await ctx.send_msgs([{"cmd": "LocationChecks", "locations": [2010100]}])
+
+            if ram_data[91][0] == 1:
+                await ctx.send_msgs([{"cmd": "LocationChecks", "locations": [2010101]}])
+
+            if ram_data[92][0] == 1:
+                await ctx.send_msgs([{"cmd": "LocationChecks", "locations": [2010102]}])
+
+            if ram_data[93][0] == 1:
+                await ctx.send_msgs([{"cmd": "LocationChecks", "locations": [2010103]}])
+
+            if ram_data[94][0] == 1:
+                await ctx.send_msgs([{"cmd": "LocationChecks", "locations": [2010104]}])
+
 
             if ram_data[51][0] == 1:  # pits
                 await ctx.send_msgs([{
@@ -730,6 +765,12 @@ class SSClient(BizHawkClient):
                         await ctx.send_msgs([{"cmd": "Say", "text": "yay I found the claw machine. whaddya all want?"}])
                     self.hinted_claw = True
 
+            if not self.hinted_store:
+                if ram_data[86][0] == 1:
+                    await ctx.send_msgs([{"cmd": "LocationScouts", "locations": [2010097, 2010098, 2010099, 2010100, 2010101, 2010102, 2010103, 2010104], "create_as_hint": 2}])
+                    if ctx.slot_data.get("rude_client") == 1:
+                        await ctx.send_msgs([{"cmd": "Say", "text": "okay, creepy old store. whaddya all want?"}])
+                    self.hinted_store = True
 
 
 
@@ -757,6 +798,10 @@ class SSClient(BizHawkClient):
                     await bizhawk.write(ctx.bizhawk_ctx, [(0x0CFF, [received_index + i + 1], "WRAM")])
                     if ctx.slot_data.get("rude_client") == 1:
                         await ctx.send_msgs([{"cmd": "Say", "text": "let's go gambling!!!!!!!!!!!!!!"}])
+
+                elif ctx.items_received[received_index + i].item == 2010015: # mystery shop key
+                    await bizhawk.write(ctx.bizhawk_ctx, [(0x0C6C, [1], "WRAM")])
+                    await bizhawk.write(ctx.bizhawk_ctx, [(0x0CFF, [received_index + i + 1], "WRAM")])
 
                 elif ctx.items_received[received_index + i].item == 2010004: # Coins
                     await bizhawk.write(ctx.bizhawk_ctx, [(0x0B98, [min(ram_data[45][0] + 1, 255)], "WRAM")])
@@ -844,6 +889,9 @@ class SSClient(BizHawkClient):
 
             if ctx.slot_data.get("hidden_secret_stuff") == 1:
                 await bizhawk.write(ctx.bizhawk_ctx, [(0x0B9A, [1], "WRAM")])
+
+            if ctx.slot_data.get("secret_shop") == 1:
+                await bizhawk.write(ctx.bizhawk_ctx, [(0x0C58, [1], "WRAM")])
 
 
     async def handle_death_link(self, ctx: "BizHawkClientContext", ghost_health: int) -> None:

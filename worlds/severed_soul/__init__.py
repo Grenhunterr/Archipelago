@@ -184,5 +184,5 @@ class SeveredSoulWorld(World):
         # A dictionary returned from this method gets set as the slot_data and will be sent to the client after connecting.
         # The options dataclass has a method to return a `Dict[str, Any]` of each option name provided and the relevant
         # option's value.
-        names = ["progress_per_lvl", "secret_ending", "hidden_secret_stuff", "stupid_people", "death_link", "rude_client"]
+        names = ["progress_per_lvl", "secret_ending", "hidden_secret_stuff", "stupid_people", "death_link", "rude_client", "secret_shop"]
         return self.options.as_dict(*names)

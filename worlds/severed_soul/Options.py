@@ -1,6 +1,6 @@
 import typing
 from dataclasses import dataclass
-from Options import Option, Range, Toggle, PerGameCommonOptions, DefaultOnToggle, DeathLink
+from Options import Option, Range, Toggle, PerGameCommonOptions, DefaultOnToggle, DeathLink, Choice
 
 
 class NotBeingStupid(DefaultOnToggle):
@@ -33,9 +33,18 @@ class Pit_Checks(Toggle):
     default = False
 
 class Rude_Client(Toggle):
-    """The client WILL talk for you if you turn this on. (and may I say, it is quite rude)"""
+    """The client WILL talk for you if you turn this on."""
     display_name = "Rude Client"
     default = False
+
+
+# class SpeakingClient(Choice):
+#    """The client WILL talk for you if you turn this on."""
+#    display_name = "Speaking Client"
+#    op_muted = 0
+#    op_rude = 1
+#    op_inspectorgadget = 2
+#    default = 0
 
 class Trap_Amount(Range):
     """Death Traps :) """
@@ -58,7 +67,7 @@ class Enemy_Hits(Toggle):
 
 class Check_Map(Toggle):
     """toggling this will generate a {player}.puml, which is a map of all the obtainable checks inside your Randomization. (only generates on host's machine)"""
-    display_name = "Puml Generation of a map of Checks"
+    display_name = "Check Map Gen"
     default = False
 
 class Health_items(Toggle):
@@ -94,6 +103,7 @@ class SSOptions(PerGameCommonOptions):
     health_items: Health_items
     more_coins: More_Coins
     secret_shop: Secret_Shop
+
 
 
 

@@ -10,6 +10,13 @@ def create_regions(world):
     regmen = Region("Menu", player, multiworld, "Menu")
     multiworld.regions.append(regmen)
 
+    reggui = Region("GUI", player, multiworld, "GUI")
+    locgui_names = []
+    if world.options.hidden_secret_stuff:
+        locgui_names.append("Konami Code Secret")
+    reggui.locations += [SeveredSoulLocation(player, loc_name, location_table[loc_name], reggui) for loc_name in locgui_names]
+    multiworld.regions.append(reggui)
+
     if world.options.secret_shop:
         regstore = Region("Store", player, multiworld, "Store")
         locstore_names = ["Trinket (Store)", "Artifact (Store)", "Scroll (Store)", "Nail (Store)", "Lightbulb (Store)", "Hourglass (Store)", "Severed Soul Cartridge (Store)", "Teleporter (Store)"]
@@ -29,8 +36,6 @@ def create_regions(world):
         locclaw_names.append("Anchor (Claw Machine Draw)")
         locclaw_names.append("Ghost Keychain (Claw Machine Draw)")
         locclaw_names.append("Star (Claw Machine Draw)")
-    if world.options.hidden_secret_stuff:
-        locclaw_names.append("Konami Code Secret")
     regclaw.locations += [SeveredSoulLocation(player, loc_name, location_table[loc_name], regclaw) for loc_name in locclaw_names]
     multiworld.regions.append(regclaw)
 
@@ -44,7 +49,7 @@ def create_regions(world):
     regw1l2 = Region("W1L2", player, multiworld, "W1L2")
     locw1l2_names = ["Coin #1 (W1L2)", "Coin #2 (W1L2)", "Coin #3 (W1L2)", "Coin #4 (W1L2)", "W1L2 Completed"]
     if world.options.hidden_secret_stuff:
-        locw1l2_names.append("The Eye Sees All")
+        locw1l2_names.append("The Eye Sees All Secret")
     if world.options.enemy_hits:
         locw1l2_names.append("W1L2 Moundy #1")
         locw1l2_names.append("W1L2 Moundy #2")
@@ -91,7 +96,7 @@ def create_regions(world):
     if world.options.enemy_hits:
         locw2l3_names.append("W2L3 Coud")
     if world.options.hidden_secret_stuff:
-        locw2l3_names.append("Why would you come up here?")
+        locw2l3_names.append("W2L3 - Why would you come up here?")
     regw2l3.locations += [SeveredSoulLocation(player, loc_name, location_table[loc_name], regw2l3) for loc_name in locw2l3_names]
     multiworld.regions.append(regw2l3)
 
@@ -128,7 +133,7 @@ def create_regions(world):
     if world.options.oob_coins:
         locw3l3_names.append("Coin #6 (W3L3)")
     if world.options.hidden_secret_stuff:
-        locw3l3_names.append("Duck")
+        locw3l3_names.append("Secret Duck")
     if world.options.enemy_hits:
         locw3l3_names.append("W3L3 Batte")
     regw3l3.locations += [SeveredSoulLocation(player, loc_name, location_table[loc_name], regw3l3) for loc_name in locw3l3_names]
@@ -155,13 +160,13 @@ def create_regions(world):
     regw3l6 = Region("W3L6", player, multiworld, "W3L6")
     locw3l6_names = ["W3L6 Completed"]
     if world.options.i_went_and_fell:
-        locw3l6_names.append("Fell Down A Pit")
-        locw3l6_names.append("Fell Down The Pit Again")
-        locw3l6_names.append("You KNOW That There's A Pit. Why would you go down???")
-        locw3l6_names.append("Seriously? Again?")
-        locw3l6_names.append("...")
-        locw3l6_names.append("You need a therapist.")
-        locw3l6_names.append("Last Pitfallin' Check")
+        locw3l6_names.append("Pitfall - Fell Down A Pit")
+        locw3l6_names.append("Pitfall - Fell Down The Pit Again")
+        locw3l6_names.append("Pitfall - You KNOW That There's A Pit. Why would you go down???")
+        locw3l6_names.append("Pitfall - Seriously? Again?")
+        locw3l6_names.append("Pitfall - ...")
+        locw3l6_names.append("Pitfall - You need a therapist.")
+        locw3l6_names.append("Pitfall - Last Pitfallin' Check")
     regw3l6.locations += [SeveredSoulLocation(player, loc_name, location_table[loc_name], regw3l5) for loc_name in locw3l6_names]
     multiworld.regions.append(regw3l6)
 
@@ -195,6 +200,11 @@ def connect_entrances(world) -> None:
         connect(world, "Claw Machine Entrance (Menu -> Claw Machine)", "Menu", "Claw Machine", lambda state: state.has("Claw Machine Key", world.player) and state.has("Coin", world.player, 10))
     else:
         connect(world, "Claw Machine Entrance (Menu -> Claw Machine)", "Menu", "Claw Machine", lambda state: state.has("Claw Machine Key", world.player))
+
+    connect(world, "Mystery Shop Entrance (Menu -> Store)", "Menu", "Store", lambda state: state.has("Mysterious Key", world.player))
+
+    # Konami Secret Connect
+    connect(world, "Menu -> GUI (save file thing)", "Menu", "GUI")
 
     # world connecting
     connect(world, "W2 Entrance (W1L3 -> W2L1)", "W1L3", "W2L1", lambda state: state.has("W2 Key", world.player))
