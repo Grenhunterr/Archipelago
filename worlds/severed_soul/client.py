@@ -94,7 +94,7 @@ class SSClient(BizHawkClient):
                 (0x0C04, 1, "WRAM"),  # Slime-y Secret
                 (0x0C06, 1, "WRAM"),  # The Eye Sees All
                 (0x0C08, 1, "WRAM"),  # Duck
-                (0x0C96, 1, "WRAM"),  # Claw Machine Draw (multiple items, all share this)
+                (0x0C6E, 1, "WRAM"),  # Claw Machine Draw (multiple items, all share this)
                 (0x0CFF, 1, "WRAM"),
                 (0x0B98, 1, "WRAM"), # coins maybe
                 (0x0B9E, 1, "WRAM"), # Secret Checks
@@ -860,6 +860,12 @@ class SSClient(BizHawkClient):
                     await bizhawk.write(ctx.bizhawk_ctx, [(0x0CFF, [received_index + i + 1], "WRAM")])
                     if ctx.slot_data.get("rude_client") == 1:
                         await ctx.send_msgs([{"cmd": "Say", "text": "great"}])
+
+                elif ctx.items_received[received_index + i].item == 2010017: # Coins
+                    await bizhawk.write(ctx.bizhawk_ctx, [(0x0B98, [min(ram_data[45][0] + 200, 255)], "WRAM")])
+                    await bizhawk.write(ctx.bizhawk_ctx, [(0x0CFF, [received_index + i + 1], "WRAM")])
+                    if ctx.slot_data.get("rude_client") == 1:
+                        await ctx.send_msgs([{"cmd": "Say", "text": "200 coins!??!?!?!??!?!??!?!??!?"}])
 
 
 

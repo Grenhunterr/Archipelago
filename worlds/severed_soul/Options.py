@@ -80,6 +80,11 @@ class More_Coins(Toggle):
     display_name = "More Coins"
     default = False
 
+class Look_Under_The_Hood(Toggle):
+    """Turns on a bunch of prints while generating so you can see what's happening"""
+    display_name = "Behind The Scenes"
+    default = False
+
 class Secret_Shop(Toggle):
     """secret shop? what are you talking about? I never saw something like that... weird timeline this is. (don't turn this on just yet, it's broken)"""
     display_name = "Secret Shop"
@@ -96,12 +101,13 @@ class SSOptions(PerGameCommonOptions):
     i_went_and_fell: Pit_Checks
     traps: Trap_Amount
     pit_traps: Pit_Amount
-    rude_client: Rude_Client
     enemy_hits: Enemy_Hits
     death_link: DeathLink
-    puml_gen: Check_Map
     health_items: Health_items
     more_coins: More_Coins
+    puml_gen: Check_Map
+    behind_the_scenes: Look_Under_The_Hood
+    rude_client: Rude_Client
     secret_shop: Secret_Shop
 
 

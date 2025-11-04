@@ -66,9 +66,9 @@ class SeveredSoulWorld(World):
     # Items can be grouped using their names to allow easy checking if any item
     # from that group has been collected. Group names can also be used for !hint
     item_name_groups = {
-        "keys": {"W2 Key", "W3 Key", "End Credits Key", "Claw Machine Key", "Mysterious Key"},
-        "coins": {"Coin"},
-        "secrets": {"Secret Item #1", "Secret Item #2", "Secret Item #3", "Secret Item #4"}
+        "Keys": {"W2 Key", "W3 Key", "End Credits Key", "Claw Machine Key", "Mysterious Key"},
+        "Coins": {"Coin"},
+        "Secrets": {"Secret Item #1", "Secret Item #2", "Secret Item #3", "Secret Item #4"}
     }
 
 
@@ -89,15 +89,21 @@ class SeveredSoulWorld(World):
     def create_items(self):
 
         totalItems = len(self.multiworld.get_unfilled_locations(self.player))
+        if self.options.behind_the_scenes:
+            print("There are currently " + str(totalItems) + " unfilled items.")
         self.multiworld.itempool.append(Item("W2 Key", ItemClassification.progression, self.item_name_to_id["W2 Key"], self.player))
         self.multiworld.itempool.append(Item("W3 Key", ItemClassification.progression, self.item_name_to_id["W3 Key"], self.player))
         self.multiworld.itempool.append(Item("End Credits Key", ItemClassification.progression, self.item_name_to_id["End Credits Key"], self.player))
         self.multiworld.itempool.append(Item("Claw Machine Key", ItemClassification.progression, self.item_name_to_id["Claw Machine Key"], self.player))
         totalItems -= 4
+        if self.options.behind_the_scenes:
+            print("Added base keys to itempool.")
 
         if self.options.secret_shop:
             self.multiworld.itempool.append(Item("Mysterious Key", ItemClassification.progression, self.item_name_to_id["Mysterious Key"], self.player))
             totalItems -= 1
+            if self.options.behind_the_scenes:
+                print("Added secret shop key to itempool.")
 
 
         if self.options.secret_ending == True:
@@ -110,7 +116,8 @@ class SeveredSoulWorld(World):
             self.multiworld.itempool.append(
                 Item("Secret Item #4", ItemClassification.progression, self.item_name_to_id["Secret Item #4"], self.player))
             totalItems -= 4
-
+            if self.options.behind_the_scenes:
+                print("Added secret items required for the secret ending to itempool.")
 
 
 
@@ -121,15 +128,21 @@ class SeveredSoulWorld(World):
                 item = Item("Coin", ItemClassification.progression, 2010004, self.player)
                 self.multiworld.itempool.append(item)
                 totalItems -= 1
+                if self.options.behind_the_scenes:
+                    print("Added prog coins to itempool.")
 
 
         for _ in range(self.options.traps):
             self.multiworld.itempool.append(Item("Death (Trap)", ItemClassification.trap, self.item_name_to_id["Death (Trap)"], self.player))
             totalItems -= 1
+            if self.options.behind_the_scenes:
+                print("Added death traps to the itempool. Good luck.")
 
         for _ in range(self.options.pit_traps):
             self.multiworld.itempool.append(Item("Pitfallin' Time! (Trap)", ItemClassification.trap, self.item_name_to_id["Pitfallin' Time! (Trap)"], self.player))
             totalItems -= 1
+            if self.options.behind_the_scenes:
+                print("Added pitfall traps to itempool. Good luck.")
 
         coinsforclaw = totalItems // 3 if self.options.more_coins and self.options.randomed_claw else 0
         coinsgalore = totalItems // 5 if self.options.more_coins else 0
@@ -138,16 +151,22 @@ class SeveredSoulWorld(World):
             item = Item("10 Coins", ItemClassification.progression, 2010013, self.player)
             self.multiworld.itempool.append(item)
             totalItems -= 1
+            if self.options.behind_the_scenes:
+                print("Added '10 coins' items to itempool.")
 
         for _ in range(coinsgalore):
             if self.options.more_coins:
                 item = Item("2 Coins", ItemClassification.useful, 2010013, self.player)
                 self.multiworld.itempool.append(item)
                 totalItems -= 1
+                if self.options.behind_the_scenes:
+                    print("Added '2 coins' items to itempool.")
             else:
                 item = Item("2 Coins", ItemClassification.filler, 2010013, self.player)
                 self.multiworld.itempool.append(item)
                 totalItems -= 1
+                if self.options.behind_the_scenes:
+                    print("Added '2 coins' items to itempool.")
 
         totHeals = totalItems // 4 if self.options.health_items else 0
 
@@ -155,16 +174,22 @@ class SeveredSoulWorld(World):
             item = Item("+1 Health", ItemClassification.useful, 2010011, self.player)
             self.multiworld.itempool.append(item)
             totalItems -= 1
+            if self.options.behind_the_scenes:
+                print("Added a little bit of health to the itempool.")
 
         for _ in range(totHeals):
             item = Item("+2 Health", ItemClassification.useful, 2010012, self.player)
             self.multiworld.itempool.append(item)
             totalItems -= 1
-
+            if self.options.behind_the_scenes:
+                print("Added more health to the itempool.")
 
         for _ in range(totalItems):
             item = Item("Coin", ItemClassification.filler, 2010004, self.player)
             self.multiworld.itempool.append(item)
+            totalItems -= 1
+            if self.options.behind_the_scenes:
+                print("Added filler coin to the itempool.")
 
 
 

@@ -189,7 +189,8 @@ def connect(world, name: str, source: str, target: str, rule=None, reach: Option
     source_region.exits.append(connection)
     connection.connect(target_region)
 
-    print(f"\nConnecting Region {source} to Region {target} with rule: {rule_to_str}\n")
+    if world.options.behind_the_scenes:
+        print(f"\nConnecting Region {source} to Region {target} with rule: {rule_to_str}\n")
 
     return connection if reach else None
 
@@ -197,11 +198,15 @@ def connect(world, name: str, source: str, target: str, rule=None, reach: Option
 def connect_entrances(world) -> None:
     connect(world, "W1 Entrance (Menu -> W1L1)", "Menu", "W1L1")
     if world.options.randomed_claw:
-        connect(world, "Claw Machine Entrance (Menu -> Claw Machine)", "Menu", "Claw Machine", lambda state: state.has("Claw Machine Key", world.player) and state.has("Coin", world.player, 10))
+        if world.options.more_coins:
+            connect(world, "Claw Machine Entrance (Menu -> Claw Machine)", "Menu", "Claw Machine", lambda state: state.has("Claw Machine Key", world.player) and state.has("10 Coins", world.player))
+        else:
+            connect(world, "Claw Machine Entrance (Menu -> Claw Machine)", "Menu", "Claw Machine", lambda state: state.has("Claw Machine Key", world.player) and state.has("Coin", world.player, 10))
     else:
         connect(world, "Claw Machine Entrance (Menu -> Claw Machine)", "Menu", "Claw Machine", lambda state: state.has("Claw Machine Key", world.player))
 
-    connect(world, "Mystery Shop Entrance (Menu -> Store)", "Menu", "Store", lambda state: state.has("Mysterious Key", world.player))
+    if world.options.secret_shop:
+        connect(world, "Mystery Shop Entrance (Menu -> Store)", "Menu", "Store", lambda state: state.has("Mysterious Key", world.player))
 
     # Konami Secret Connect
     connect(world, "Menu -> GUI (save file thing)", "Menu", "GUI")
@@ -212,7 +217,7 @@ def connect_entrances(world) -> None:
     if world.options.secret_ending:
         connect(world, "End Credits Entrance (Claw Machine)", "Claw Machine", "End", lambda state: state.has("Claw Machine Key", world.player) and state.has("W3 Key", world.player) and state.has("W2 Key", world.player) and state.has("Secret Item #4", world.player) and state.has("Secret Item #3", world.player) and state.has("Secret Item #2", world.player) and state.has("Secret Item #1", world.player))
     else:
-        connect(world, "End Credits Entrance (W3 Exit)", "W3L2", "End", lambda state: state.has("End Credits Key", world.player) and state.has("Coin", world.player))
+        connect(world, "End Credits Entrance (W3 Exit)", "W3L3", "End", lambda state: state.has("End Credits Key", world.player))
 
     # level connecting
     connect(world, "W1L1 -> W1L2", "W1L1", "W1L2")
@@ -227,9 +232,11 @@ def connect_entrances(world) -> None:
     connect(world, "W3L2 -> W3L3", "W3L2", "W3L3")
     connect(world, "W3L2 -> W3L4", "W3L2", "W3L4")
     connect(world, "W3L2 -> W3L5", "W3L2", "W3L5")
+    connect(world, "W3L2 -> W3L6", "W3L2", "W3L6")
 
-    if world.options.i_went_and_fell:
-        connect(world, "W3L2 -> W3L6", "W3L2", "W3L6")
+    connect(world, "W3L5 -> W3L3", "W3L5", "W3L3")
+    connect(world, "W3L4 -> W3L3", "W3L4", "W3L3")
+    connect(world, "W3L6 -> W3L3", "W3L6", "W3L3")
 
     connect(world, "W3 Entrance (W2L4 -> W3L1)", "W2L4", "W3L1", lambda state: state.has("W3 Key", world.player))
 
