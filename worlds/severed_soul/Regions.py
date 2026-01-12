@@ -66,7 +66,7 @@ def create_regions(world):
 
     regw1l4 = Region("W1L4", player, multiworld, "W1L4")
     locw1l4_names = ["W1L4 Completed"]
-    if world.options.secret_ending:
+    if world.options.route == 1:
         locw1l4_names.append("Secret Check #1")
     if world.options.hidden_secret_stuff:
         locw1l4_names.append("K. K. Slider Secret")
@@ -91,7 +91,7 @@ def create_regions(world):
 
     regw2l3 = Region("W2L3", player, multiworld, "W2L3")
     locw2l3_names = ["Coin #1 (W2L3)", "Coin #2 (W2L3)", "W2L3 Completed"]
-    if world.options.secret_ending:
+    if world.options.route == 1:
         locw2l3_names.append("Secret Check #2")
     if world.options.enemy_hits:
         locw2l3_names.append("W2L3 Coud")
@@ -113,7 +113,7 @@ def create_regions(world):
 
     regw3l1 = Region("W3L1", player, multiworld, "W3L1")
     locw3l1_names = ["Coin #1 (W3L1)", "Coin #2 (W3L1)", "Coin #3 (W3L1)", "W3L1 Completed"]
-    if world.options.secret_ending:
+    if world.options.route == 1:
         locw3l1_names.append("Secret Check #4")
     if world.options.enemy_hits:
         locw3l1_names.append("W3L1 Batte #1")
@@ -143,7 +143,7 @@ def create_regions(world):
     locw3l4_names = ["Coin #1 (W3L4)", "Coin #2 (W3L4)", "Coin #3 (W3L4)", "Coin #4 (W3L4)", "W3L4 Completed"]
     if world.options.oob_coins:
         locw3l4_names.append("Coin #5 (W3L4)")
-    if world.options.secret_ending:
+    if world.options.route == 1:
         locw3l4_names.append("Secret Check #3")
     if world.options.enemy_hits:
         locw3l4_names.append("W3L4 Batte")
@@ -189,8 +189,8 @@ def connect(world, name: str, source: str, target: str, rule=None, reach: Option
     source_region.exits.append(connection)
     connection.connect(target_region)
 
-    if world.options.behind_the_scenes:
-        print(f"\nConnecting Region {source} to Region {target} with rule: {rule_to_str}\n")
+
+    print(f"\nConnecting Region {source} to Region {target} with rule: {rule_to_str}\n")
 
     return connection if reach else None
 
@@ -214,7 +214,7 @@ def connect_entrances(world) -> None:
     # world connecting
     connect(world, "W2 Entrance (W1L3 -> W2L1)", "W1L3", "W2L1", lambda state: state.has("W2 Key", world.player))
     connect(world, "W3 Entrance (W2L3 -> W3L1)", "W2L3", "W3L1", lambda state: state.has("W3 Key", world.player))
-    if world.options.secret_ending:
+    if world.options.route == 1:
         connect(world, "End Credits Entrance (Claw Machine)", "Claw Machine", "End", lambda state: state.has("Claw Machine Key", world.player) and state.has("W3 Key", world.player) and state.has("W2 Key", world.player) and state.has("Secret Item #4", world.player) and state.has("Secret Item #3", world.player) and state.has("Secret Item #2", world.player) and state.has("Secret Item #1", world.player))
     else:
         connect(world, "End Credits Entrance (W3 Exit)", "W3L3", "End", lambda state: state.has("End Credits Key", world.player))

@@ -10,8 +10,37 @@ from worlds._bizhawk.client import BizHawkClient
 from worlds.AutoWorld import World
 
 if TYPE_CHECKING:
-    from worlds._bizhawk.context import BizHawkClientContext
+    from worlds._bizhawk.context import BizHawkClientContext, BizHawkClientCommandProcessor
 
+logger = logging.getLogger("Client")
+rudeness = 0
+funnydeath = 0
+
+def cmd_rude(self: "BizHawkClientCommandProcessor") -> None:
+    """Toggles the Rude Messages"""
+    if self.ctx.game != "Severed Soul":
+        logger.warning("This command can only be used when playing Severed Soul.")
+        return
+    if not self.ctx.server or not self.ctx.slot:
+        logger.warning("You must be connected to a server to use this command.")
+        return
+
+    global rudeness
+    rudeness ^= 1
+    logger.warning("Rude messages enabled." if rudeness else "Rude messages disabled.")
+
+def cmd_death(self: "BizHawkClientCommandProcessor") -> None:
+    """When toggled, this command will turn on the funny death messages instead of having actually useful ones."""
+    if self.ctx.game != "Severed Soul":
+        logger.warning("This command can only be used when playing Severed Soul.")
+        return
+    if not self.ctx.server or not self.ctx.slot:
+        logger.warning("You must be connected to a server to use this command.")
+        return
+
+    global funnydeath
+    funnydeath ^= 1
+    logger.warning("Funny death messages enabled." if funnydeath else "Funny death messages disabled.")
 
 class SSClient(BizHawkClient):
     game = "Severed Soul"           # Match this with your World name
@@ -35,6 +64,19 @@ class SSClient(BizHawkClient):
             ctx.game = self.game
             ctx.items_handling = 0b011  # Server sends items
             ctx.want_slot_data = True
+
+            if "rudeness" in ctx.command_processor.commands:
+                ctx.command_processor.commands.pop("rudeness")
+
+            if "funny_death" in ctx.command_processor.commands:
+                ctx.command_processor.commands.pop("funny_death")
+
+            if "rudeness" not in ctx.command_processor.commands:
+                ctx.command_processor.commands["rudeness"] = cmd_rude
+
+            if "funny_death" not in ctx.command_processor.commands:
+                ctx.command_processor.commands["funny_death"] = cmd_death
+
             return True
         except bizhawk.RequestFailedError:
             return False  # Can't confirm ROM, deny
@@ -147,6 +189,7 @@ class SSClient(BizHawkClient):
                 (0x0C68, 1, "WRAM"), #93
                 (0x0C6A, 1, "WRAM"), #94
                 (0x0C70, 1, "WRAM"), #95 shop examine
+                (0x0C72, 1, "WRAM"), #96 death reason. 1 for groundy, 2 for coud, 3 for batte, 4 for pits, 5 for traps
             ]))
 
 
@@ -761,14 +804,14 @@ class SSClient(BizHawkClient):
             if not self.hinted_claw:
                 if ram_data[52][0] == 1:
                     await ctx.send_msgs([{"cmd": "LocationScouts", "locations": [2010038, 2010039, 2010040, 2010041, 2010042, 2010043, 2010044, 2010045, 2010046, 2010047], "create_as_hint": 2}])
-                    if ctx.slot_data.get("rude_client") == 1:
+                    if rudeness == 1:
                         await ctx.send_msgs([{"cmd": "Say", "text": "yay I found the claw machine. whaddya all want?"}])
                     self.hinted_claw = True
 
             if not self.hinted_store:
                 if ram_data[86][0] == 1:
                     await ctx.send_msgs([{"cmd": "LocationScouts", "locations": [2010097, 2010098, 2010099, 2010100, 2010101, 2010102, 2010103, 2010104], "create_as_hint": 2}])
-                    if ctx.slot_data.get("rude_client") == 1:
+                    if rudeness == 1:
                         await ctx.send_msgs([{"cmd": "Say", "text": "okay, creepy old store. whaddya all want?"}])
                     self.hinted_store = True
 
@@ -778,25 +821,25 @@ class SSClient(BizHawkClient):
                 if ctx.items_received[received_index + i].item == 2010000: # W2 Key
                     await bizhawk.write(ctx.bizhawk_ctx, [(0x0BAC, [1], "WRAM")])
                     await bizhawk.write(ctx.bizhawk_ctx, [(0x0CFF, [received_index + i + 1], "WRAM")])
-                    if ctx.slot_data.get("rude_client") == 1:
+                    if rudeness == 1:
                         await ctx.send_msgs([{"cmd": "Say", "text": "finally, took you long enough for that key."}])
 
                 elif ctx.items_received[received_index + i].item == 2010001: # W3 Key
                     await bizhawk.write(ctx.bizhawk_ctx, [(0x0BAE, [1], "WRAM")])
                     await bizhawk.write(ctx.bizhawk_ctx, [(0x0CFF, [received_index + i + 1], "WRAM")])
-                    if ctx.slot_data.get("rude_client") == 1:
+                    if rudeness == 1:
                         await ctx.send_msgs([{"cmd": "Say", "text": "yeeeeeesh, been waiting a looooooong time. thanks anyway"}])
 
                 elif ctx.items_received[received_index + i].item == 2010002: # End Credits Key
                     await bizhawk.write(ctx.bizhawk_ctx, [(0x0BB0, [1], "WRAM")])
                     await bizhawk.write(ctx.bizhawk_ctx, [(0x0CFF, [received_index + i + 1], "WRAM")])
-                    if ctx.slot_data.get("rude_client") == 1:
+                    if rudeness == 1:
                         await ctx.send_msgs([{"cmd": "Say", "text": "finally, I can beat this and sit back and watch again."}])
 
                 elif ctx.items_received[received_index + i].item == 2010003: # Claw Machine Key
                     await bizhawk.write(ctx.bizhawk_ctx, [(0x0BB2, [1], "WRAM")])
                     await bizhawk.write(ctx.bizhawk_ctx, [(0x0CFF, [received_index + i + 1], "WRAM")])
-                    if ctx.slot_data.get("rude_client") == 1:
+                    if rudeness == 1:
                         await ctx.send_msgs([{"cmd": "Say", "text": "let's go gambling!!!!!!!!!!!!!!"}])
 
                 elif ctx.items_received[received_index + i].item == 2010015: # mystery shop key
@@ -806,19 +849,19 @@ class SSClient(BizHawkClient):
                 elif ctx.items_received[received_index + i].item == 2010004: # Coins
                     await bizhawk.write(ctx.bizhawk_ctx, [(0x0B98, [min(ram_data[45][0] + 1, 255)], "WRAM")])
                     await bizhawk.write(ctx.bizhawk_ctx, [(0x0CFF, [received_index + i + 1], "WRAM")])
-                    if ctx.slot_data.get("rude_client") == 1:
+                    if rudeness == 1:
                         await ctx.send_msgs([{"cmd": "Say", "text": "thanks. that was so useful"}])
 
                 elif ctx.items_received[received_index + i].item == 2010014: # 10 Coins
                     await bizhawk.write(ctx.bizhawk_ctx, [(0x0B98, [min(ram_data[45][0] + 10, 255)], "WRAM")])
                     await bizhawk.write(ctx.bizhawk_ctx, [(0x0CFF, [received_index + i + 1], "WRAM")])
-                    if ctx.slot_data.get("rude_client") == 1:
+                    if rudeness == 1:
                         await ctx.send_msgs([{"cmd": "Say", "text": "actually, that was just 10 times more helpful than usual"}])
 
                 elif ctx.items_received[received_index + i].item == 2010013: # Coins
                     await bizhawk.write(ctx.bizhawk_ctx, [(0x0B98, [min(ram_data[45][0] + 2, 255)], "WRAM")])
                     await bizhawk.write(ctx.bizhawk_ctx, [(0x0CFF, [received_index + i + 1], "WRAM")])
-                    if ctx.slot_data.get("rude_client") == 1:
+                    if rudeness == 1:
                         await ctx.send_msgs([{"cmd": "Say", "text": "only 2x more helpful, but still isn't"}])
 
                 elif ctx.items_received[received_index + i].item == 2010005: # secret 1
@@ -838,33 +881,34 @@ class SSClient(BizHawkClient):
                     await bizhawk.write(ctx.bizhawk_ctx, [(0x0CFF, [received_index + i + 1], "WRAM")])
 
                 elif ctx.items_received[received_index + i].item == 2010009: # death 1
+                    await bizhawk.write(ctx.bizhawk_ctx, [(0x0C72, [5], "WRAM")])
                     await bizhawk.write(ctx.bizhawk_ctx, [(0x0B94, [0], "WRAM")])
                     await bizhawk.write(ctx.bizhawk_ctx, [(0x0CFF, [received_index + i + 1], "WRAM")])
-                    if ctx.slot_data.get("rude_client") == 1:
+                    if rudeness == 1:
                         await ctx.send_msgs([{"cmd": "Say", "text": "lovely. I died. time to restart that entire level again."}])
 
                 elif ctx.items_received[received_index + i].item == 2010011: # heal 1
                     await bizhawk.write(ctx.bizhawk_ctx, [(0x0B94, [ram_data[47][0] + 1], "WRAM")])
                     await bizhawk.write(ctx.bizhawk_ctx, [(0x0CFF, [received_index + i + 1], "WRAM")])
-                    if ctx.slot_data.get("rude_client") == 1:
+                    if rudeness == 1:
                         await ctx.send_msgs([{"cmd": "Say", "text": "thank you."}])
 
                 elif ctx.items_received[received_index + i].item == 2010012: # heal 2
                     await bizhawk.write(ctx.bizhawk_ctx, [(0x0B94, [ram_data[47][0] + 2], "WRAM")])
                     await bizhawk.write(ctx.bizhawk_ctx, [(0x0CFF, [received_index + i + 1], "WRAM")])
-                    if ctx.slot_data.get("rude_client") == 1:
+                    if rudeness == 1:
                         await ctx.send_msgs([{"cmd": "Say", "text": "thank you, but double"}])
 
                 elif ctx.items_received[received_index + i].item == 2010010: # pits trap
                     await bizhawk.write(ctx.bizhawk_ctx, [(0x0C54, [ram_data[85][0] + 1], "WRAM")])
                     await bizhawk.write(ctx.bizhawk_ctx, [(0x0CFF, [received_index + i + 1], "WRAM")])
-                    if ctx.slot_data.get("rude_client") == 1:
+                    if rudeness == 1:
                         await ctx.send_msgs([{"cmd": "Say", "text": "great"}])
 
                 elif ctx.items_received[received_index + i].item == 2010017: # Coins
                     await bizhawk.write(ctx.bizhawk_ctx, [(0x0B98, [min(ram_data[45][0] + 200, 255)], "WRAM")])
                     await bizhawk.write(ctx.bizhawk_ctx, [(0x0CFF, [received_index + i + 1], "WRAM")])
-                    if ctx.slot_data.get("rude_client") == 1:
+                    if rudeness == 1:
                         await ctx.send_msgs([{"cmd": "Say", "text": "200 coins!??!?!?!??!?!??!?!??!?"}])
 
 
@@ -890,7 +934,7 @@ class SSClient(BizHawkClient):
             if ctx.slot_data.get("progress_per_lvl") == 0:
                 await bizhawk.write(ctx.bizhawk_ctx, [(0x0B96, [15], "WRAM")])
 
-            if ctx.slot_data.get("secret_ending") == 1:
+            if ctx.slot_data.get("route") == 1:
                 await bizhawk.write(ctx.bizhawk_ctx, [(0x0B9E, [1], "WRAM")])
 
             if ctx.slot_data.get("hidden_secret_stuff") == 1:
@@ -905,6 +949,7 @@ class SSClient(BizHawkClient):
         if ctx.slot_data.get("death_link") == 1 or ctx.slot_data.get("death_link") == True:
 
             death_message_num = random.randrange(0, 10)
+            death_reason = (await bizhawk.read(ctx.bizhawk_ctx, [(0x0C72, 1, "WRAM")]))[0][0]
 
             if not self.death_link_ready:
                 if ghost_health > 0:
@@ -919,25 +964,42 @@ class SSClient(BizHawkClient):
                     self.previous_death_link = ctx.last_death_link
 
             if ghost_health == 0:
-                if death_message_num == 1:
-                    await ctx.send_death(f"{ctx.player_names[ctx.slot]} screwed you all over. :)")
-                elif death_message_num == 2:
-                    await ctx.send_death(f"{ctx.player_names[ctx.slot]} fell into a pit lmao.")
-                elif death_message_num == 3:
-                    await ctx.send_death(f"{ctx.player_names[ctx.slot]} got his soul split by Bob the Wizard.")
-                elif death_message_num == 4:
-                    await ctx.send_death(f"{ctx.player_names[ctx.slot]} couldn't dodge a bat.")
-                elif death_message_num == 5:
-                    await ctx.send_death(f"{ctx.player_names[ctx.slot]} wasn't determined enough.")
-                elif death_message_num == 6:
-                    await ctx.send_death(f"{ctx.player_names[ctx.slot]} died, so now you all die!")
-                elif death_message_num == 7:
-                    await ctx.send_death(f"{ctx.player_names[ctx.slot]} died to fall damage.")
-                elif death_message_num == 8:
-                    await ctx.send_death(f"Hello, again, to all {ctx.player_names[ctx.slot]}'s friends. Together, we could play some rock and roll.")
-                elif death_message_num == 9:
-                    await ctx.send_death(f"{ctx.player_names[ctx.slot]}. Come on, man. Just, stop dying!")
-                else:
-                    await ctx.send_death(f"{ctx.player_names[ctx.slot]} didn't play through the game, or the game's tutorial.")
+
+                if funnydeath == 1:
+                    if death_message_num == 1:
+                        await ctx.send_death(f"{ctx.player_names[ctx.slot]} screwed you all over. :)")
+                    elif death_message_num == 2:
+                        await ctx.send_death(f"{ctx.player_names[ctx.slot]} fell into a pit lmao.")
+                    elif death_message_num == 3:
+                        await ctx.send_death(f"{ctx.player_names[ctx.slot]} got his soul split by Bob the Wizard.")
+                    elif death_message_num == 4:
+                        await ctx.send_death(f"{ctx.player_names[ctx.slot]} couldn't dodge a bat.")
+                    elif death_message_num == 5:
+                        await ctx.send_death(f"{ctx.player_names[ctx.slot]} wasn't determined enough.")
+                    elif death_message_num == 6:
+                        await ctx.send_death(f"{ctx.player_names[ctx.slot]} died, so now you all die!")
+                    elif death_message_num == 7:
+                        await ctx.send_death(f"{ctx.player_names[ctx.slot]} died to fall damage.")
+                    elif death_message_num == 8:
+                        await ctx.send_death(f"Hello, again, to all {ctx.player_names[ctx.slot]}'s friends. Together, we could play some rock and roll.")
+                    elif death_message_num == 9:
+                        await ctx.send_death(f"{ctx.player_names[ctx.slot]}. Come on, man. Just, stop dying!")
+                    else:
+                        await ctx.send_death(f"{ctx.player_names[ctx.slot]} didn't play through the game, or the game's tutorial.")
+
+                elif funnydeath == 0:
+                    if death_reason == 1:
+                        await ctx.send_death(f"{ctx.player_names[ctx.slot]} died to a Groundy.")
+                    elif death_reason == 2:
+                        await ctx.send_death(f"{ctx.player_names[ctx.slot]} died to a Coud.")
+                    elif death_reason == 3:
+                        await ctx.send_death(f"{ctx.player_names[ctx.slot]} died to a Batte.")
+                    elif death_reason == 4:
+                        await ctx.send_death(f"{ctx.player_names[ctx.slot]} died because they fell in a pit.")
+                    elif death_reason == 5:
+                        await ctx.send_death(f"{ctx.player_names[ctx.slot]} died because someone sent them a death trap. Unfortunate.")
+
+
+
                 self.previous_death_link = ctx.last_death_link
                 self.death_link_ready = False

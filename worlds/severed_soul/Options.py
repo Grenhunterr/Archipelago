@@ -11,9 +11,16 @@ class OOBCoins(Toggle):
     """This toggles coins that are out of bounds. Do not turn this on unless you know where they are."""
     display_name = "Out of Bounds Coins"
 
-class SecretEndingChecks(Toggle):
-    """Toggles the Secret Ending."""
-    display_name = "Secret Ending Route"
+# class SecretEndingChecks(Toggle):
+#     """Toggles the Secret Ending."""
+#     display_name = "Secret Ending Route"
+
+class Which_Route(Choice):
+    """Which route will you like to play?"""
+    display_name = "Route"
+    option_normal = 0
+    option_secret = 1
+    default = 0
 
 class HiddenSecretChecks(Toggle):
     """Shows the hidden secret stuff. This is seperate from the Secret Ending."""
@@ -37,14 +44,6 @@ class Rude_Client(Toggle):
     display_name = "Rude Client"
     default = False
 
-
-# class SpeakingClient(Choice):
-#    """The client WILL talk for you if you turn this on."""
-#    display_name = "Speaking Client"
-#    op_muted = 0
-#    op_rude = 1
-#    op_inspectorgadget = 2
-#    default = 0
 
 class Trap_Amount(Range):
     """Death Traps :) """
@@ -90,10 +89,14 @@ class Secret_Shop(Toggle):
     display_name = "Secret Shop"
     default = False
 
+class FunnyDeath(Toggle):
+    """gives random death messages which replace the original ones."""
+    display_name = "Funny Death Messages"
+    default = False
+
 @dataclass
 class SSOptions(PerGameCommonOptions):
-    stupid_people: NotBeingStupid
-    secret_ending: SecretEndingChecks
+    route: Which_Route
     oob_coins: OOBCoins
     hidden_secret_stuff: HiddenSecretChecks
     progress_per_lvl: PPL
@@ -105,9 +108,6 @@ class SSOptions(PerGameCommonOptions):
     death_link: DeathLink
     health_items: Health_items
     more_coins: More_Coins
-    puml_gen: Check_Map
-    behind_the_scenes: Look_Under_The_Hood
-    rude_client: Rude_Client
     secret_shop: Secret_Shop
 
 
@@ -115,7 +115,7 @@ class SSOptions(PerGameCommonOptions):
 
 option_definitions = {
     "stupid_people": NotBeingStupid,
-    "secret_ending": SecretEndingChecks,
+    "route": Which_Route,
     "oob_coins": OOBCoins,
     "hidden_secret_stuff": HiddenSecretChecks,
     "progress_per_lvl": PPL,
